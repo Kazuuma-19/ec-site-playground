@@ -69,6 +69,4 @@ public class User {
      */
     @Column(name = "telephone", nullable = false, length = 15)
     private String telephone;
-
-
 }
