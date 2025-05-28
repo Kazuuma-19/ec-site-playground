@@ -4,7 +4,7 @@
 ### 1. 環境構築
 - DBを作成
 ```bash
-CREATE DATABASE IF NOT EXISTS ec_site_playground;
+CREATE DATABASE ec_site_playground;
 ```
 ### 2. サーバー起動
 #### React起動
