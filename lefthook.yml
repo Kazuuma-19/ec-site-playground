@@ -1,0 +1,14 @@
+pre-commit:
+  # format: apply changes in a front and back end app
+  # lint: don't apply changes in a front and back end app
+  commands:
+    backend-format:
+      root: "backend/"
+      glob: "*.java"
+      run: ./gradlew spotlessApply
+      stage_fixed: true
+    # checkstyle
+    backend-lint:
+      root: "backend/"
+      glob: "*.java"
+      run: ./gradlew checkstyleMain
