@@ -4,8 +4,10 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.OnDelete;
 
 import java.time.ZonedDateTime;
+import java.util.List;
 
 /**
  * 注文情報を表すドメインクラス.
@@ -102,4 +104,10 @@ public class Order {
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private Integer userId;
+
+    /**
+     * 注文アイテムリスト
+     */
+    @OneToMany(mappedBy = "orderItem", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<OrderItem> orderItemList;
 }
