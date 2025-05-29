@@ -1,18 +1,16 @@
-import { useState } from "react";
 import {
-  AppBar,
-  Toolbar,
-  Typography,
-  Container,
   Button,
-  Grid,
-  TextField,
-  Paper,
   Card,
-  CardMedia,
   CardContent,
+  CardMedia,
+  Container,
+  Grid,
   Link,
+  Paper,
+  TextField,
+  Typography,
 } from "@mui/material";
+import { useState } from "react";
 
 const pizzaItems = Array.from({ length: 9 }).map((_, i) => ({
   id: i + 1,
@@ -32,21 +30,6 @@ export function IndexList() {
 
   return (
     <>
-      <AppBar position="static" color="default">
-        <Toolbar sx={{ justifyContent: "space-between" }}>
-          <Link href="/item_list_pizza.html">
-            <img src="/header_logo.png" alt="logo" height="35" />
-          </Link>
-
-          <div>
-            <Button href="/cart_list.html">ショッピングカート</Button>
-            <Button href="/order_history.html">注文履歴</Button>
-            <Button href="/login.html">ログイン</Button>
-            <Button href="/item_list_pizza.html">ログアウト</Button>
-          </div>
-        </Toolbar>
-      </AppBar>
-
       <Container sx={{ my: 4 }}>
         <Paper sx={{ p: 2, maxWidth: 600, mx: "auto", mb: 4 }}>
           <Typography variant="h6" gutterBottom>

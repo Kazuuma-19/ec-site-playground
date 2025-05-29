@@ -11,14 +11,35 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
-import { Route as AboutIndexImport } from './routes/about/index'
+import { Route as RegisterIndexImport } from './routes/register/index'
+import { Route as OrderHistoryIndexImport } from './routes/order-history/index'
+import { Route as LoginIndexImport } from './routes/login/index'
+import { Route as CartIndexImport } from './routes/cart/index'
 import { Route as IndexIndexImport } from './routes/_index/index'
 
 // Create/Update Routes
 
-const AboutIndexRoute = AboutIndexImport.update({
-  id: '/about/',
-  path: '/about/',
+const RegisterIndexRoute = RegisterIndexImport.update({
+  id: '/register/',
+  path: '/register/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const OrderHistoryIndexRoute = OrderHistoryIndexImport.update({
+  id: '/order-history/',
+  path: '/order-history/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const LoginIndexRoute = LoginIndexImport.update({
+  id: '/login/',
+  path: '/login/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const CartIndexRoute = CartIndexImport.update({
+  id: '/cart/',
+  path: '/cart/',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -39,11 +60,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexIndexImport
       parentRoute: typeof rootRoute
     }
-    '/about/': {
-      id: '/about/'
-      path: '/about'
-      fullPath: '/about'
-      preLoaderRoute: typeof AboutIndexImport
+    '/cart/': {
+      id: '/cart/'
+      path: '/cart'
+      fullPath: '/cart'
+      preLoaderRoute: typeof CartIndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/login/': {
+      id: '/login/'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginIndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/order-history/': {
+      id: '/order-history/'
+      path: '/order-history'
+      fullPath: '/order-history'
+      preLoaderRoute: typeof OrderHistoryIndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/register/': {
+      id: '/register/'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof RegisterIndexImport
       parentRoute: typeof rootRoute
     }
   }
@@ -53,37 +95,58 @@ declare module '@tanstack/react-router' {
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexIndexRoute
-  '/about': typeof AboutIndexRoute
+  '/cart': typeof CartIndexRoute
+  '/login': typeof LoginIndexRoute
+  '/order-history': typeof OrderHistoryIndexRoute
+  '/register': typeof RegisterIndexRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexIndexRoute
-  '/about': typeof AboutIndexRoute
+  '/cart': typeof CartIndexRoute
+  '/login': typeof LoginIndexRoute
+  '/order-history': typeof OrderHistoryIndexRoute
+  '/register': typeof RegisterIndexRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/_index/': typeof IndexIndexRoute
-  '/about/': typeof AboutIndexRoute
+  '/cart/': typeof CartIndexRoute
+  '/login/': typeof LoginIndexRoute
+  '/order-history/': typeof OrderHistoryIndexRoute
+  '/register/': typeof RegisterIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about'
+  fullPaths: '/' | '/cart' | '/login' | '/order-history' | '/register'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about'
-  id: '__root__' | '/_index/' | '/about/'
+  to: '/' | '/cart' | '/login' | '/order-history' | '/register'
+  id:
+    | '__root__'
+    | '/_index/'
+    | '/cart/'
+    | '/login/'
+    | '/order-history/'
+    | '/register/'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexIndexRoute: typeof IndexIndexRoute
-  AboutIndexRoute: typeof AboutIndexRoute
+  CartIndexRoute: typeof CartIndexRoute
+  LoginIndexRoute: typeof LoginIndexRoute
+  OrderHistoryIndexRoute: typeof OrderHistoryIndexRoute
+  RegisterIndexRoute: typeof RegisterIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexIndexRoute: IndexIndexRoute,
-  AboutIndexRoute: AboutIndexRoute,
+  CartIndexRoute: CartIndexRoute,
+  LoginIndexRoute: LoginIndexRoute,
+  OrderHistoryIndexRoute: OrderHistoryIndexRoute,
+  RegisterIndexRoute: RegisterIndexRoute,
 }
 
 export const routeTree = rootRoute
@@ -97,14 +160,26 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/_index/",
-        "/about/"
+        "/cart/",
+        "/login/",
+        "/order-history/",
+        "/register/"
       ]
     },
     "/_index/": {
       "filePath": "_index/index.tsx"
     },
-    "/about/": {
-      "filePath": "about/index.tsx"
+    "/cart/": {
+      "filePath": "cart/index.tsx"
+    },
+    "/login/": {
+      "filePath": "login/index.tsx"
+    },
+    "/order-history/": {
+      "filePath": "order-history/index.tsx"
+    },
+    "/register/": {
+      "filePath": "register/index.tsx"
     }
   }
 }
