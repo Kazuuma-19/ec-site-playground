@@ -10,5 +10,5 @@ pre-commit:
     # checkstyle
     backend-lint:
       root: "backend/"
-      glob: "*.java"
+      glob: "**/*.java"
       run: ./gradlew checkstyleMain
