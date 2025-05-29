@@ -1,16 +1,5 @@
-import {
-  Button,
-  Card,
-  CardContent,
-  CardMedia,
-  Container,
-  Grid,
-  Link,
-  Paper,
-  TextField,
-  Typography,
-} from "@mui/material";
 import { useState } from "react";
+import { CustomLink } from "../../components/CustomLink";
 
 const pizzaItems = Array.from({ length: 9 }).map((_, i) => ({
   id: i + 1,
@@ -29,61 +18,65 @@ export function IndexPage() {
   };
 
   return (
-    <>
-      <Container sx={{ my: 4 }}>
-        <Paper sx={{ p: 2, maxWidth: 600, mx: "auto", mb: 4 }}>
-          <Typography variant="h6" gutterBottom>
-            商品を検索する
-          </Typography>
+    <div className="max-w-7xl mx-auto px-4 py-8">
+      {/* Search Form */}
+      <div className="bg-white shadow-md rounded-lg p-6 max-w-xl mx-auto mb-8">
+        <h2 className="text-lg font-semibold mb-4">商品を検索する</h2>
+        <form onSubmit={handleSearch} className="flex gap-2">
+          <input
+            type="text"
+            className="flex-1 border border-gray-300 rounded px-3 py-2 text-sm"
+            placeholder="商品名"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          <button
+            type="submit"
+            className="bg-blue-600 text-white px-4 py-2 rounded text-sm hover:bg-blue-700"
+          >
+            検索
+          </button>
+          <button
+            type="reset"
+            onClick={() => setSearchTerm("")}
+            className="border border-gray-300 text-gray-700 px-4 py-2 rounded text-sm hover:bg-gray-100"
+          >
+            クリア
+          </button>
+        </form>
+      </div>
 
-          <form onSubmit={handleSearch} style={{ display: "flex", gap: 8 }}>
-            <TextField
-              fullWidth
-              label="商品名"
-              variant="outlined"
-              size="small"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            <Button type="submit" variant="contained">
-              検索
-            </Button>
-            <Button
-              type="reset"
-              variant="outlined"
-              onClick={() => setSearchTerm("")}
-            >
-              クリア
-            </Button>
-          </form>
-        </Paper>
+      {/* Pizza Items Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        {pizzaItems.map((item) => (
+          <div
+            key={item.id}
+            className="bg-white rounded-lg shadow hover:shadow-lg transition"
+          >
+            <CustomLink to="/$itemId" params={{ itemId: item.id }}>
+              <img
+                src={item.image}
+                alt={item.name}
+                className="w-full h-48 object-cover rounded-t-lg"
+              />
+            </CustomLink>
 
-        <Grid container spacing={2} justifyContent="center">
-          {pizzaItems.map((item) => (
-            <Grid item xs={12} sm={6} md={4} key={item.id}>
-              <Card>
-                <Link href="/item_detail.html">
-                  <CardMedia
-                    component="img"
-                    image={item.image}
-                    alt={item.name}
-                    sx={{ height: 200, objectFit: "cover" }}
-                  />
-                </Link>
-                <CardContent>
-                  <Typography variant="subtitle1" component="div">
-                    <Link href="/item_detail.html" underline="hover">
-                      {item.name}
-                    </Link>
-                  </Typography>
-                  <Typography variant="body2">М: {item.priceM}</Typography>
-                  <Typography variant="body2">Ｌ: {item.priceL}</Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
-      </Container>
-    </>
+            <div className="p-4">
+              <h3 className="text-base font-semibold mb-1">
+                <CustomLink
+                  to="/$itemId"
+                  params={{ itemId: item.id }}
+                  className="text-blue-600 hover:underline"
+                >
+                  {item.name}
+                </CustomLink>
+              </h3>
+              <p className="text-sm text-gray-600">M: {item.priceM}</p>
+              <p className="text-sm text-gray-600">L: {item.priceL}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }

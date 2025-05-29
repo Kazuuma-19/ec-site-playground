@@ -16,6 +16,7 @@ import { Route as OrderHistoryIndexImport } from './routes/order-history/index'
 import { Route as LoginIndexImport } from './routes/login/index'
 import { Route as CartIndexImport } from './routes/cart/index'
 import { Route as IndexIndexImport } from './routes/_index/index'
+import { Route as IndexItemIdImport } from './routes/_index/$itemId'
 
 // Create/Update Routes
 
@@ -49,10 +50,23 @@ const IndexIndexRoute = IndexIndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const IndexItemIdRoute = IndexItemIdImport.update({
+  id: '/_index/$itemId',
+  path: '/$itemId',
+  getParentRoute: () => rootRoute,
+} as any)
+
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/_index/$itemId': {
+      id: '/_index/$itemId'
+      path: '/$itemId'
+      fullPath: '/$itemId'
+      preLoaderRoute: typeof IndexItemIdImport
+      parentRoute: typeof rootRoute
+    }
     '/_index/': {
       id: '/_index/'
       path: '/'
@@ -94,6 +108,7 @@ declare module '@tanstack/react-router' {
 // Create and export the route tree
 
 export interface FileRoutesByFullPath {
+  '/$itemId': typeof IndexItemIdRoute
   '/': typeof IndexIndexRoute
   '/cart': typeof CartIndexRoute
   '/login': typeof LoginIndexRoute
@@ -102,6 +117,7 @@ export interface FileRoutesByFullPath {
 }
 
 export interface FileRoutesByTo {
+  '/$itemId': typeof IndexItemIdRoute
   '/': typeof IndexIndexRoute
   '/cart': typeof CartIndexRoute
   '/login': typeof LoginIndexRoute
@@ -111,6 +127,7 @@ export interface FileRoutesByTo {
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
+  '/_index/$itemId': typeof IndexItemIdRoute
   '/_index/': typeof IndexIndexRoute
   '/cart/': typeof CartIndexRoute
   '/login/': typeof LoginIndexRoute
@@ -120,11 +137,18 @@ export interface FileRoutesById {
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/cart' | '/login' | '/order-history' | '/register'
+  fullPaths:
+    | '/$itemId'
+    | '/'
+    | '/cart'
+    | '/login'
+    | '/order-history'
+    | '/register'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/cart' | '/login' | '/order-history' | '/register'
+  to: '/$itemId' | '/' | '/cart' | '/login' | '/order-history' | '/register'
   id:
     | '__root__'
+    | '/_index/$itemId'
     | '/_index/'
     | '/cart/'
     | '/login/'
@@ -134,6 +158,7 @@ export interface FileRouteTypes {
 }
 
 export interface RootRouteChildren {
+  IndexItemIdRoute: typeof IndexItemIdRoute
   IndexIndexRoute: typeof IndexIndexRoute
   CartIndexRoute: typeof CartIndexRoute
   LoginIndexRoute: typeof LoginIndexRoute
@@ -142,6 +167,7 @@ export interface RootRouteChildren {
 }
 
 const rootRouteChildren: RootRouteChildren = {
+  IndexItemIdRoute: IndexItemIdRoute,
   IndexIndexRoute: IndexIndexRoute,
   CartIndexRoute: CartIndexRoute,
   LoginIndexRoute: LoginIndexRoute,
@@ -159,12 +185,16 @@ export const routeTree = rootRoute
     "__root__": {
       "filePath": "__root.tsx",
       "children": [
+        "/_index/$itemId",
         "/_index/",
         "/cart/",
         "/login/",
         "/order-history/",
         "/register/"
       ]
+    },
+    "/_index/$itemId": {
+      "filePath": "_index/$itemId.tsx"
     },
     "/_index/": {
       "filePath": "_index/index.tsx"
