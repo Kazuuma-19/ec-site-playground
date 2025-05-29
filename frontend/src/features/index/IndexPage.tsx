@@ -20,7 +20,7 @@ const pizzaItems = Array.from({ length: 9 }).map((_, i) => ({
   image: `/${i + 1}.jpg`,
 }));
 
-export function IndexList() {
+export function IndexPage() {
   const [searchTerm, setSearchTerm] = useState("");
 
   const handleSearch = (e: React.FormEvent) => {

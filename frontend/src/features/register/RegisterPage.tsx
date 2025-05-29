@@ -8,7 +8,7 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 
-export function RegisterIndex() {
+export function RegisterPage() {
   const [form, setForm] = useState({
     name: "",
     email: "",

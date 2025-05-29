@@ -32,7 +32,7 @@ const cartItems = [
   // 他のアイテムもここに追加可能
 ];
 
-export function CartIndex() {
+export function CartPage() {
   const totalTax = 8000;
   const totalPrice = 38000;
 
