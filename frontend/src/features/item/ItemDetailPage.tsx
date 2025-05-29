@@ -17,12 +17,15 @@ import {
   Select,
   Typography,
 } from "@mui/material";
+import { useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 
 export function ItemDetailPage() {
   const [size, setSize] = useState("M");
   const [toppings, setToppings] = useState<string[]>([]);
   const [quantity, setQuantity] = useState(1);
+
+  const navigate = useNavigate();
 
   const handleToppingChange = (topping: string) => {
     setToppings((prev) =>
@@ -36,6 +39,12 @@ export function ItemDetailPage() {
     const basePrice = size === "M" ? 1380 : 2380;
     const toppingPrice = size === "M" ? 200 : 300;
     return (basePrice + toppings.length * toppingPrice) * quantity;
+  };
+
+  const addCart = () => {
+    navigate({
+      to: "/cart",
+    });
   };
 
   return (
@@ -138,7 +147,12 @@ export function ItemDetailPage() {
               </Typography>
             </Box>
 
-            <Button variant="contained" color="warning" fullWidth>
+            <Button
+              variant="contained"
+              color="warning"
+              fullWidth
+              onClick={addCart}
+            >
               カートに入れる
             </Button>
           </CardContent>

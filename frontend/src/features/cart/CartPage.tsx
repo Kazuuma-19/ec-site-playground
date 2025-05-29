@@ -14,6 +14,7 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
+import { useNavigate } from "@tanstack/react-router";
 
 const cartItems = [
   {
@@ -35,6 +36,14 @@ const cartItems = [
 export function CartPage() {
   const totalTax = 8000;
   const totalPrice = 38000;
+
+  const navigate = useNavigate();
+
+  const handleOrder = () => {
+    navigate({
+      to: "/order/confirm",
+    });
+  };
 
   return (
     <>
@@ -111,7 +120,7 @@ export function CartPage() {
             variant="contained"
             color="warning"
             size="large"
-            href="/order_confirm"
+            onClick={handleOrder}
           >
             注文に進む
           </Button>
