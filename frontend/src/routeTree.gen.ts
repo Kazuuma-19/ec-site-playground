@@ -15,8 +15,8 @@ import { Route as RegisterIndexImport } from './routes/register/index'
 import { Route as OrderHistoryIndexImport } from './routes/order-history/index'
 import { Route as LoginIndexImport } from './routes/login/index'
 import { Route as CartIndexImport } from './routes/cart/index'
-import { Route as IndexIndexImport } from './routes/_index/index'
-import { Route as IndexItemIdImport } from './routes/_index/$itemId'
+import { Route as ItemIndexImport } from './routes/_item/index'
+import { Route as ItemItemIdImport } from './routes/_item/$itemId'
 
 // Create/Update Routes
 
@@ -44,14 +44,14 @@ const CartIndexRoute = CartIndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const IndexIndexRoute = IndexIndexImport.update({
-  id: '/_index/',
+const ItemIndexRoute = ItemIndexImport.update({
+  id: '/_item/',
   path: '/',
   getParentRoute: () => rootRoute,
 } as any)
 
-const IndexItemIdRoute = IndexItemIdImport.update({
-  id: '/_index/$itemId',
+const ItemItemIdRoute = ItemItemIdImport.update({
+  id: '/_item/$itemId',
   path: '/$itemId',
   getParentRoute: () => rootRoute,
 } as any)
@@ -60,18 +60,18 @@ const IndexItemIdRoute = IndexItemIdImport.update({
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/_index/$itemId': {
-      id: '/_index/$itemId'
+    '/_item/$itemId': {
+      id: '/_item/$itemId'
       path: '/$itemId'
       fullPath: '/$itemId'
-      preLoaderRoute: typeof IndexItemIdImport
+      preLoaderRoute: typeof ItemItemIdImport
       parentRoute: typeof rootRoute
     }
-    '/_index/': {
-      id: '/_index/'
+    '/_item/': {
+      id: '/_item/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexIndexImport
+      preLoaderRoute: typeof ItemIndexImport
       parentRoute: typeof rootRoute
     }
     '/cart/': {
@@ -108,8 +108,8 @@ declare module '@tanstack/react-router' {
 // Create and export the route tree
 
 export interface FileRoutesByFullPath {
-  '/$itemId': typeof IndexItemIdRoute
-  '/': typeof IndexIndexRoute
+  '/$itemId': typeof ItemItemIdRoute
+  '/': typeof ItemIndexRoute
   '/cart': typeof CartIndexRoute
   '/login': typeof LoginIndexRoute
   '/order-history': typeof OrderHistoryIndexRoute
@@ -117,8 +117,8 @@ export interface FileRoutesByFullPath {
 }
 
 export interface FileRoutesByTo {
-  '/$itemId': typeof IndexItemIdRoute
-  '/': typeof IndexIndexRoute
+  '/$itemId': typeof ItemItemIdRoute
+  '/': typeof ItemIndexRoute
   '/cart': typeof CartIndexRoute
   '/login': typeof LoginIndexRoute
   '/order-history': typeof OrderHistoryIndexRoute
@@ -127,8 +127,8 @@ export interface FileRoutesByTo {
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
-  '/_index/$itemId': typeof IndexItemIdRoute
-  '/_index/': typeof IndexIndexRoute
+  '/_item/$itemId': typeof ItemItemIdRoute
+  '/_item/': typeof ItemIndexRoute
   '/cart/': typeof CartIndexRoute
   '/login/': typeof LoginIndexRoute
   '/order-history/': typeof OrderHistoryIndexRoute
@@ -148,8 +148,8 @@ export interface FileRouteTypes {
   to: '/$itemId' | '/' | '/cart' | '/login' | '/order-history' | '/register'
   id:
     | '__root__'
-    | '/_index/$itemId'
-    | '/_index/'
+    | '/_item/$itemId'
+    | '/_item/'
     | '/cart/'
     | '/login/'
     | '/order-history/'
@@ -158,8 +158,8 @@ export interface FileRouteTypes {
 }
 
 export interface RootRouteChildren {
-  IndexItemIdRoute: typeof IndexItemIdRoute
-  IndexIndexRoute: typeof IndexIndexRoute
+  ItemItemIdRoute: typeof ItemItemIdRoute
+  ItemIndexRoute: typeof ItemIndexRoute
   CartIndexRoute: typeof CartIndexRoute
   LoginIndexRoute: typeof LoginIndexRoute
   OrderHistoryIndexRoute: typeof OrderHistoryIndexRoute
@@ -167,8 +167,8 @@ export interface RootRouteChildren {
 }
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexItemIdRoute: IndexItemIdRoute,
-  IndexIndexRoute: IndexIndexRoute,
+  ItemItemIdRoute: ItemItemIdRoute,
+  ItemIndexRoute: ItemIndexRoute,
   CartIndexRoute: CartIndexRoute,
   LoginIndexRoute: LoginIndexRoute,
   OrderHistoryIndexRoute: OrderHistoryIndexRoute,
@@ -185,19 +185,19 @@ export const routeTree = rootRoute
     "__root__": {
       "filePath": "__root.tsx",
       "children": [
-        "/_index/$itemId",
-        "/_index/",
+        "/_item/$itemId",
+        "/_item/",
         "/cart/",
         "/login/",
         "/order-history/",
         "/register/"
       ]
     },
-    "/_index/$itemId": {
-      "filePath": "_index/$itemId.tsx"
+    "/_item/$itemId": {
+      "filePath": "_item/$itemId.tsx"
     },
-    "/_index/": {
-      "filePath": "_index/index.tsx"
+    "/_item/": {
+      "filePath": "_item/index.tsx"
     },
     "/cart/": {
       "filePath": "cart/index.tsx"

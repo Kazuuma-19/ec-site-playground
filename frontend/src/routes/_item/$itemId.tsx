@@ -1,7 +1,7 @@
+import { ItemDetailPage } from "@/features/item/ItemDetailPage";
 import { createFileRoute } from "@tanstack/react-router";
-import { ItemDetailPage } from "../../features/index/ItemDetailPage";
 
-export const Route = createFileRoute("/_index/$itemId")({
+export const Route = createFileRoute("/_item/$itemId")({
   component: RouteComponent,
 });
 
