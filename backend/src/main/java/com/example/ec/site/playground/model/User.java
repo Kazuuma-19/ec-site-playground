@@ -32,7 +32,7 @@ public class User {
 
   /** 郵便番号. */
   @Column(name = "zip_code", nullable = false, length = 7)
-  private Character zipCode;
+  private String zipCode;
 
   /** 都道府県. */
   @Column(name = "prefecture", length = 10)

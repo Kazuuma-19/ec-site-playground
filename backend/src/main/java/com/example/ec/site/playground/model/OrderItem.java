@@ -26,7 +26,7 @@ public class OrderItem {
 
   /** サイズ. */
   @Column(name = "size", nullable = false, length = 1)
-  private Character size;
+  private String size;
 
   /** アイテムID. */
   @ManyToOne
