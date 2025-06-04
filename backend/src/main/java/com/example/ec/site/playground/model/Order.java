@@ -34,7 +34,7 @@ public class Order {
 
   /** 宛先の名前. */
   @Column(name = "destination_name", nullable = false)
-  private Character destinationName;
+  private String destinationName;
 
   /** 宛先のメールアドレス. */
   @Column(name = "destination_email", nullable = false)
