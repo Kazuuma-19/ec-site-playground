@@ -7,7 +7,8 @@ import {
   Typography,
 } from "@mui/material";
 import { useState } from "react";
-import type { UserRegisterType } from "../../types/userResiterType";
+import type { UserRegisterType } from "../../types/userRegisterType";
+import { axiosInstance } from "../../lib/axiosInstance";
 
 export function RegisterPage() {
   const [form, setForm] = useState<UserRegisterType>({
@@ -25,8 +26,14 @@ export function RegisterPage() {
     setForm((prev) => ({ ...prev, [id]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    try {
+      const response = await axiosInstance.post("/user/register", form);
+      console.log(response);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const handleReset = () => {
@@ -64,6 +71,7 @@ export function RegisterPage() {
             <label htmlFor="email">メールアドレス:</label>
             <TextField
               fullWidth
+              type="email"
               id="email"
               placeholder="Email"
               value={form.email}
