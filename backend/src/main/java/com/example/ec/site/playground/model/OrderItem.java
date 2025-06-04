@@ -14,31 +14,31 @@ import lombok.Setter;
 @Table(name = "order_item")
 public class OrderItem {
 
-  /** 注文アイテムID */
+  /** 注文アイテムID. */
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "order_item_id", nullable = false)
   private Integer orderItemId;
 
-  /** 数量 */
+  /** 数量. */
   @Column(name = "quantity", nullable = false)
   private Integer quantity;
 
-  /** サイズ */
+  /** サイズ. */
   @Column(name = "size", nullable = false, length = 1)
   private Character size;
 
-  /** アイテムID */
+  /** アイテムID. */
   @ManyToOne
   @JoinColumn(name = "item_id", nullable = false)
   private Item item;
 
-  /** 注文ID */
+  /** 注文ID. */
   @ManyToOne
   @JoinColumn(name = "order_id", nullable = false)
   private Order order;
 
-  /** 注文されているトッピングのリスト */
+  /** 注文されているトッピングのリスト. */
   @OneToMany(mappedBy = "orderItem")
   private List<OrderTopping> orderToppingList;
 }

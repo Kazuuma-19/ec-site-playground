@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
 
-/** 商品を表すドメインクラス */
+/** 商品を表すドメインクラス. */
 @Getter
 @Setter
 @NoArgsConstructor

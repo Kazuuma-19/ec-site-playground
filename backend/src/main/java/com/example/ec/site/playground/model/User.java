@@ -12,41 +12,41 @@ import lombok.Setter;
 @Entity
 @Table(name = "users")
 public class User {
-  /** ユーザID */
+  /** ユーザID. */
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "user_id")
   private Integer userId;
 
-  /** ユーザ名 */
+  /** ユーザ名. */
   @Column(name = "user_name", nullable = false)
   private String userName;
 
-  /** メールアドレス */
+  /** メールアドレス. */
   @Column(name = "email", nullable = false, unique = true)
   private String email;
 
-  /** パスワード */
+  /** パスワード. */
   @Column(name = "password", nullable = false)
   private String password;
 
-  /** 郵便番号 */
+  /** 郵便番号. */
   @Column(name = "zip_code", nullable = false, length = 7)
   private Character zipCode;
 
-  /** 都道府県 */
+  /** 都道府県. */
   @Column(name = "prefecture", length = 10)
   private String prefecture;
 
-  /** 市区町村 */
+  /** 市区町村. */
   @Column(name = "municipalities")
   private String municipalities;
 
-  /** 住所 */
+  /** 住所. */
   @Column(name = "address", nullable = false)
   private String address;
 
-  /** 携帯番号 */
+  /** 携帯番号. */
   @Column(name = "telephone", nullable = false, length = 15)
   private String telephone;
 }
