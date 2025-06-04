@@ -34,14 +34,14 @@ public class Order {
     /**
      * 合計金額
      */
-    @Column(name = "total_price")
-    private Integer totalPrice;
+    @Column(name = "total_price", columnDefinition = "INTEGER DEFAULT 0")
+    private Integer totalPrice = 0;
 
     /**
      * 注文日
      */
-    @Column(name = "order_date", columnDefinition = "TIMESTAMPTZ")
-    private ZonedDateTime orderDate;
+    @Column(name = "order_date", columnDefinition = "TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP")
+    private ZonedDateTime orderDate = ZonedDateTime.now();
 
     /**
      * 宛先の名前
@@ -88,8 +88,8 @@ public class Order {
     /**
      * 配達日時
      */
-    @Column(name = "delivery_time", columnDefinition = "TIMESTAMPTZ")
-    private ZonedDateTime deliveryTime;
+    @Column(name = "delivery_time", columnDefinition = "TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP + interval '1 hour'")
+    private ZonedDateTime deliveryTime = ZonedDateTime.now().plusHours(1);
 
     /**
      * 支払い方法

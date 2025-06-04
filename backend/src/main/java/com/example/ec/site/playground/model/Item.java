@@ -37,13 +37,13 @@ public class Item {
     /**
      * Mサイズの値段
      */
-    @Column(name = "item_price_m", nullable = false)
+    @Column(name = "item_price_m", nullable = false, columnDefinition = "INTEGER DEFAULT 0 CHECK (item_price_m >= 0)")
     private Integer itemPriceM = 0;
 
     /**
      * Lサイズの値段
      */
-    @Column(name = "item_price_l", nullable = false)
+    @Column(name = "item_price_l", nullable = false, columnDefinition = "INTEGER DEFAULT 0 CHECK (item_price_l >= 0)")
     private Integer itemPriceL = 0;
 
     /**

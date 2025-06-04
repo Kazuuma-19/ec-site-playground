@@ -31,12 +31,12 @@ public class Topping {
     /**
      * Mサイズのときの値段
      */
-    @Column(name = "price_m", nullable = false)
-    private Integer priceM;
+    @Column(name = "price_m", nullable = false, columnDefinition = "INTEGER DEFAULT 0 CHECK (price_m >= 0)")
+    private Integer priceM = 0;
 
     /**
      * Lサイズのときの値段
      */
-    @Column(name = "price_l", nullable = false)
-    private Integer priceL;
+    @Column(name = "price_l", nullable = false, columnDefinition = "INTEGER DEFAULT 0 CHECK (price_l >= 0)")
+    private Integer priceL = 0;
 }

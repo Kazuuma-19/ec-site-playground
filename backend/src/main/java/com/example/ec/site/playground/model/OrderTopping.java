@@ -28,7 +28,7 @@ public class OrderTopping {
      * 注文アイテムIDに外部制約がかかってるため.
      */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_item_id")
+    @JoinColumn(name = "order_item_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private OrderItem orderItem;
 
@@ -36,7 +36,7 @@ public class OrderTopping {
      * トッピングIDに外部制約がかかってるため.
      */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "topping_id")
+    @JoinColumn(name = "topping_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Topping topping;
 }
