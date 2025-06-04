@@ -1,4 +1,4 @@
-package com.example.ec_site_playground.model;
+package com.example.ec.site.playground.model;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -30,14 +30,14 @@ public class OrderItem {
      */
     @ManyToOne
     @JoinColumn(name = "item_id", nullable = false)
-    private Integer itemId;
+    private Item itemId;
 
     /**
      * 注文ID
      */
     @ManyToOne
     @JoinColumn(name = "order_id", nullable = false)
-    private Integer orderId;
+    private Order order;
 
     /**
      * 数量
@@ -54,6 +54,6 @@ public class OrderItem {
     /**
      *
      */
-    @OneToMany(mappedBy = "orderTopping")
+    @OneToMany(mappedBy = "orderItem")
     private List<OrderTopping> orderToppingList;
 }

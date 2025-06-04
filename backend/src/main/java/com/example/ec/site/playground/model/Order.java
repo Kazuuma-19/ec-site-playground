@@ -1,10 +1,9 @@
-package com.example.ec_site_playground.model;
+package com.example.ec.site.playground.model;
 
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.OnDelete;
 
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -103,11 +102,11 @@ public class Order {
      */
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    private Integer userId;
+    private User userId;
 
     /**
      * 注文アイテムリスト
      */
-    @OneToMany(mappedBy = "orderItem", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<OrderItem> orderItemList;
 }

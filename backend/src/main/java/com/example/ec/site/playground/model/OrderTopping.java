@@ -1,7 +1,6 @@
-package com.example.ec_site_playground.model;
+package com.example.ec.site.playground.model;
 
 import jakarta.persistence.*;
-import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -26,19 +25,7 @@ public class OrderTopping {
     private Integer orderToppingId;
 
     /**
-     * トッピングID
-     */
-    @JoinColumn(name = "topping_id", nullable = false)
-    private Integer toppingId;
-
-    /**
-     * 注文アイテムID
-     */
-    @JoinColumn(name = "order_item_id", nullable = false)
-    private Integer orderItemId;
-
-    /**
-     * 注文アイテムIDに外部制約がかかってる
+     * 注文アイテムIDに外部制約がかかってるため.
      */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_item_id")
@@ -46,7 +33,7 @@ public class OrderTopping {
     private OrderItem orderItem;
 
     /**
-     * トッピングIDに外部制約がかかってる
+     * トッピングIDに外部制約がかかってるため.
      */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "topping_id")

@@ -1,4 +1,4 @@
-package com.example.ec_site_playground.model;
+package com.example.ec.site.playground.model;
 
 import jakarta.persistence.*;
 import lombok.Getter;
