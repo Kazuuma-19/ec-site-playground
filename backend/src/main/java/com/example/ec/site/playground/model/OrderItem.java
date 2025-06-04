@@ -52,7 +52,7 @@ public class OrderItem {
     private String size;
 
     /**
-     *
+     * 注文されているトッピングのリスト
      */
     @OneToMany(mappedBy = "orderItem")
     private List<OrderTopping> orderToppingList;
