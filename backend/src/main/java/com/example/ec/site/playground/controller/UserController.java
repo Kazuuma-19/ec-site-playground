@@ -20,6 +20,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
   private final UserService userService;
 
+  /**
+   * ユーザー登録を行うエンドポイント.
+   *
+   * @param request ユーザー登録リクエスト
+   * @return 登録されたユーザー情報
+   */
   @PostMapping("/register")
   public ResponseEntity<?> registerUser(@RequestBody UserRegisterRequest request) {
     try {
