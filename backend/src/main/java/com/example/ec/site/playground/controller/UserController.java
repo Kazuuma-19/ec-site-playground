@@ -42,8 +42,7 @@ public class UserController {
       User savedUser = userService.registerUser(user);
 
       UserRegisterResponse response =
-          new UserRegisterResponse(
-              savedUser.getUserId(), savedUser.getUserName(), savedUser.getEmail());
+          new UserRegisterResponse(savedUser.getUserName(), savedUser.getEmail());
       return ResponseEntity.status(HttpStatus.CREATED).body(response);
     } catch (IllegalArgumentException e) {
       return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));

@@ -10,6 +10,17 @@ import { useState } from "react";
 import type { UserRegisterType } from "../../types/userRegisterType";
 import { axiosInstance } from "../../lib/axiosInstance";
 
+type RegisterRequestType = {
+  userName: string;
+  email: string;
+  password: string;
+  zipCode: string;
+  prefecture?: string;
+  municipalities?: string;
+  address: string;
+  telephone: string;
+};
+
 export function RegisterPage() {
   const [form, setForm] = useState<UserRegisterType>({
     name: "",
@@ -28,8 +39,25 @@ export function RegisterPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (form.password !== form.confirmPassword) {
+      alert("パスワードが一致しません。");
+      return;
+    }
+
+    const requestBody: RegisterRequestType = {
+      userName: form.name,
+      email: form.email,
+      password: form.password,
+      zipCode: form.zipcode,
+      prefecture: "",
+      municipalities: "",
+      address: form.address,
+      telephone: form.tel,
+    };
+
     try {
-      const response = await axiosInstance.post("/user/register", form);
+      const response = await axiosInstance.post("/user/register", requestBody);
       console.log(response);
     } catch (error) {
       console.error(error);
