@@ -4,7 +4,6 @@ import com.example.ec.site.playground.dto.request.UserRegisterRequest;
 import com.example.ec.site.playground.dto.response.UserRegisterResponse;
 import com.example.ec.site.playground.model.User;
 import com.example.ec.site.playground.service.UserService;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,24 +27,20 @@ public class UserController {
    */
   @PostMapping("/register")
   public ResponseEntity<?> registerUser(@RequestBody UserRegisterRequest request) {
-    try {
-      User user = new User();
-      user.setUserName(request.getUserName());
-      user.setEmail(request.getEmail());
-      user.setPassword(request.getPassword());
-      user.setZipCode(request.getZipCode());
-      user.setPrefecture(request.getPrefecture());
-      user.setMunicipalities(request.getMunicipalities());
-      user.setAddress(request.getAddress());
-      user.setTelephone(request.getTelephone());
+    User user = new User();
+    user.setUserName(request.getUserName());
+    user.setEmail(request.getEmail());
+    user.setPassword(request.getPassword());
+    user.setZipCode(request.getZipCode());
+    user.setPrefecture(request.getPrefecture());
+    user.setMunicipalities(request.getMunicipalities());
+    user.setAddress(request.getAddress());
+    user.setTelephone(request.getTelephone());
 
-      User savedUser = userService.registerUser(user);
+    User savedUser = userService.registerUser(user);
 
-      UserRegisterResponse response =
-          new UserRegisterResponse(savedUser.getUserName(), savedUser.getEmail());
-      return ResponseEntity.status(HttpStatus.CREATED).body(response);
-    } catch (IllegalArgumentException e) {
-      return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-    }
+    UserRegisterResponse response =
+        new UserRegisterResponse(savedUser.getUserName(), savedUser.getEmail());
+    return ResponseEntity.status(HttpStatus.CREATED).body(response);
   }
 }
