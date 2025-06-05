@@ -1,3 +1,7 @@
+open:
+	cd frontend && cursor .
+	cd backend && idea64.exe .
+
 front-ready:
 	cd frontend && npm install
 
