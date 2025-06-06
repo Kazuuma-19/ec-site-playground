@@ -124,6 +124,13 @@ export function RegisterPage() {
                 placeholder="Zipcode"
                 value={form.zipcode}
                 onChange={handleChange}
+                slotProps={{
+                  htmlInput: {
+                    maxLength: 7,
+                    pattern: "[0-9]*",
+                    inputMode: "numeric",
+                  },
+                }}
               />
             </div>
           </Box>
