@@ -30,14 +30,7 @@ export function LoginPage() {
       navigate({ to: "/" });
     } catch (error) {
       // TODO: 適切なエラーハンドリングにする
-      if (error instanceof AxiosError) {
-        if (error.response?.status === 401) {
-          setError("メールアドレス、またはパスワードが間違っています");
-        } else {
-          setError("ログイン処理中にエラーが発生しました");
-          console.error("Login error:", error);
-        }
-      }
+      console.error(error);
     }
   };
 
