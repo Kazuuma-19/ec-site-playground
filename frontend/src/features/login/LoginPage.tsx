@@ -8,21 +8,36 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import { CustomLink } from "../../components/CustomLink";
+import { axiosInstance } from "../../lib/axiosInstance";
+import { useNavigate } from "@tanstack/react-router";
+import { AxiosError } from "axios";
 
 export function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // 仮のエラーチェック
-    if (email !== "test@example.com" || password !== "password") {
-      setError("メールアドレス、またはパスワードが間違っています");
-    } else {
-      // 本来はここでログイン処理・ルーティングを行う
-      window.location.href = "/item_list_pizza";
+    try {
+      await axiosInstance.post("/user/login", {
+        email,
+        password,
+      });
+
+      navigate({ to: "/" });
+    } catch (error) {
+      // TODO: 適切なエラーハンドリングにする
+      if (error instanceof AxiosError) {
+        if (error.response?.status === 401) {
+          setError("メールアドレス、またはパスワードが間違っています");
+        } else {
+          setError("ログイン処理中にエラーが発生しました");
+          console.error("Login error:", error);
+        }
+      }
     }
   };
 
@@ -52,6 +67,7 @@ export function LoginPage() {
               placeholder="Email"
             />
           </Box>
+
           <Box mb={2}>
             <label htmlFor="password">パスワード:</label>
             <TextField
@@ -64,6 +80,7 @@ export function LoginPage() {
               placeholder="Password"
             />
           </Box>
+
           <Button variant="contained" color="primary" type="submit" fullWidth>
             ログイン
           </Button>
