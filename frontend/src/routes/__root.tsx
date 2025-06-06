@@ -1,34 +1,19 @@
-import { AppBar, Toolbar } from "@mui/material";
-import { createRootRoute, Outlet } from "@tanstack/react-router";
-import { CustomLink } from "../components/CustomLink";
+import { createRootRoute, Outlet, useMatches } from "@tanstack/react-router";
+import Header from "../components/layout/Header";
+import NotFoundPage from "../components/layout/NotFoundPage";
 
 export const Route = createRootRoute({
-  component: () => (
-    <>
-      <AppBar position="static" color="default">
-        <Toolbar sx={{ justifyContent: "space-between" }}>
-          <CustomLink to="/">
-            <img src="/header_logo.png" alt="logo" height="35" />
-          </CustomLink>
+  component: () => {
+    const matches = useMatches();
+    // __root__しかマッチしない場合は404ページを表示
+    const is404 = matches.length <= 1;
 
-          <div className="flex items-center gap-4">
-            <CustomLink to="/cart" underline="hover" className="font-bold">
-              ショッピングカート
-            </CustomLink>
-            <CustomLink to="/order-history" underline="hover">
-              注文履歴
-            </CustomLink>
-            <CustomLink to="/login" underline="hover">
-              ログイン
-            </CustomLink>
-            <CustomLink to="/logout" underline="hover">
-              ログアウト
-            </CustomLink>
-          </div>
-        </Toolbar>
-      </AppBar>
-
-      <Outlet />
-    </>
-  ),
+    return (
+      <>
+        {!is404 && <Header />}
+        <Outlet />
+      </>
+    );
+  },
+  notFoundComponent: () => <NotFoundPage />,
 });

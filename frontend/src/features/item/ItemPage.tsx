@@ -53,7 +53,7 @@ export function ItemPage() {
             key={item.id}
             className="bg-white rounded-lg shadow hover:shadow-lg transition"
           >
-            <CustomLink to="/$itemId" params={{ itemId: item.id }}>
+            <CustomLink to="/item/$itemId" params={{ itemId: String(item.id) }}>
               <img
                 src={item.image}
                 alt={item.name}
@@ -64,8 +64,8 @@ export function ItemPage() {
             <div className="p-4">
               <h3 className="text-base font-semibold mb-1">
                 <CustomLink
-                  to="/$itemId"
-                  params={{ itemId: item.id }}
+                  to="/item/$itemId"
+                  params={{ itemId: String(item.id) }}
                   className="text-blue-600 hover:underline"
                 >
                   {item.name}
