@@ -10,7 +10,6 @@ import { useState } from "react";
 import { CustomLink } from "../../components/CustomLink";
 import { axiosInstance } from "../../lib/axiosInstance";
 import { useNavigate } from "@tanstack/react-router";
-import { AxiosError } from "axios";
 
 export function LoginPage() {
   const [email, setEmail] = useState("");
@@ -27,7 +26,7 @@ export function LoginPage() {
         password,
       });
 
-      navigate({ to: "/" });
+      navigate({ to: "/item" });
     } catch (error) {
       // TODO: 適切なエラーハンドリングにする
       console.error(error);
