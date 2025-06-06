@@ -1,11 +1,13 @@
 package com.example.ec.site.playground.dto.request;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /** ユーザ登録リクエストを表すDTOクラス. */
 @Getter
 @Setter
+@NoArgsConstructor
 public class UserRegisterRequest {
   private String userName;
   private String email;

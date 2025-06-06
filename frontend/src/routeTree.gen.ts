@@ -13,12 +13,12 @@
 import { Route as rootRoute } from './routes/__root'
 import { Route as RegisterIndexImport } from './routes/register/index'
 import { Route as LoginIndexImport } from './routes/login/index'
+import { Route as ItemIndexImport } from './routes/item/index'
 import { Route as CartIndexImport } from './routes/cart/index'
-import { Route as ItemIndexImport } from './routes/_item/index'
 import { Route as OrderHistoryImport } from './routes/order/history'
 import { Route as OrderFinishedImport } from './routes/order/finished'
 import { Route as OrderConfirmImport } from './routes/order/confirm'
-import { Route as ItemItemIdImport } from './routes/_item/$itemId'
+import { Route as ItemItemIdImport } from './routes/item/$itemId'
 
 // Create/Update Routes
 
@@ -34,15 +34,15 @@ const LoginIndexRoute = LoginIndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const CartIndexRoute = CartIndexImport.update({
-  id: '/cart/',
-  path: '/cart/',
+const ItemIndexRoute = ItemIndexImport.update({
+  id: '/item/',
+  path: '/item/',
   getParentRoute: () => rootRoute,
 } as any)
 
-const ItemIndexRoute = ItemIndexImport.update({
-  id: '/_item/',
-  path: '/',
+const CartIndexRoute = CartIndexImport.update({
+  id: '/cart/',
+  path: '/cart/',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -65,8 +65,8 @@ const OrderConfirmRoute = OrderConfirmImport.update({
 } as any)
 
 const ItemItemIdRoute = ItemItemIdImport.update({
-  id: '/_item/$itemId',
-  path: '/$itemId',
+  id: '/item/$itemId',
+  path: '/item/$itemId',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -74,10 +74,10 @@ const ItemItemIdRoute = ItemItemIdImport.update({
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/_item/$itemId': {
-      id: '/_item/$itemId'
-      path: '/$itemId'
-      fullPath: '/$itemId'
+    '/item/$itemId': {
+      id: '/item/$itemId'
+      path: '/item/$itemId'
+      fullPath: '/item/$itemId'
       preLoaderRoute: typeof ItemItemIdImport
       parentRoute: typeof rootRoute
     }
@@ -102,18 +102,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OrderHistoryImport
       parentRoute: typeof rootRoute
     }
-    '/_item/': {
-      id: '/_item/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof ItemIndexImport
-      parentRoute: typeof rootRoute
-    }
     '/cart/': {
       id: '/cart/'
       path: '/cart'
       fullPath: '/cart'
       preLoaderRoute: typeof CartIndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/item/': {
+      id: '/item/'
+      path: '/item'
+      fullPath: '/item'
+      preLoaderRoute: typeof ItemIndexImport
       parentRoute: typeof rootRoute
     }
     '/login/': {
@@ -136,35 +136,35 @@ declare module '@tanstack/react-router' {
 // Create and export the route tree
 
 export interface FileRoutesByFullPath {
-  '/$itemId': typeof ItemItemIdRoute
+  '/item/$itemId': typeof ItemItemIdRoute
   '/order/confirm': typeof OrderConfirmRoute
   '/order/finished': typeof OrderFinishedRoute
   '/order/history': typeof OrderHistoryRoute
-  '/': typeof ItemIndexRoute
   '/cart': typeof CartIndexRoute
+  '/item': typeof ItemIndexRoute
   '/login': typeof LoginIndexRoute
   '/register': typeof RegisterIndexRoute
 }
 
 export interface FileRoutesByTo {
-  '/$itemId': typeof ItemItemIdRoute
+  '/item/$itemId': typeof ItemItemIdRoute
   '/order/confirm': typeof OrderConfirmRoute
   '/order/finished': typeof OrderFinishedRoute
   '/order/history': typeof OrderHistoryRoute
-  '/': typeof ItemIndexRoute
   '/cart': typeof CartIndexRoute
+  '/item': typeof ItemIndexRoute
   '/login': typeof LoginIndexRoute
   '/register': typeof RegisterIndexRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
-  '/_item/$itemId': typeof ItemItemIdRoute
+  '/item/$itemId': typeof ItemItemIdRoute
   '/order/confirm': typeof OrderConfirmRoute
   '/order/finished': typeof OrderFinishedRoute
   '/order/history': typeof OrderHistoryRoute
-  '/_item/': typeof ItemIndexRoute
   '/cart/': typeof CartIndexRoute
+  '/item/': typeof ItemIndexRoute
   '/login/': typeof LoginIndexRoute
   '/register/': typeof RegisterIndexRoute
 }
@@ -172,32 +172,32 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    | '/$itemId'
+    | '/item/$itemId'
     | '/order/confirm'
     | '/order/finished'
     | '/order/history'
-    | '/'
     | '/cart'
+    | '/item'
     | '/login'
     | '/register'
   fileRoutesByTo: FileRoutesByTo
   to:
-    | '/$itemId'
+    | '/item/$itemId'
     | '/order/confirm'
     | '/order/finished'
     | '/order/history'
-    | '/'
     | '/cart'
+    | '/item'
     | '/login'
     | '/register'
   id:
     | '__root__'
-    | '/_item/$itemId'
+    | '/item/$itemId'
     | '/order/confirm'
     | '/order/finished'
     | '/order/history'
-    | '/_item/'
     | '/cart/'
+    | '/item/'
     | '/login/'
     | '/register/'
   fileRoutesById: FileRoutesById
@@ -208,8 +208,8 @@ export interface RootRouteChildren {
   OrderConfirmRoute: typeof OrderConfirmRoute
   OrderFinishedRoute: typeof OrderFinishedRoute
   OrderHistoryRoute: typeof OrderHistoryRoute
-  ItemIndexRoute: typeof ItemIndexRoute
   CartIndexRoute: typeof CartIndexRoute
+  ItemIndexRoute: typeof ItemIndexRoute
   LoginIndexRoute: typeof LoginIndexRoute
   RegisterIndexRoute: typeof RegisterIndexRoute
 }
@@ -219,8 +219,8 @@ const rootRouteChildren: RootRouteChildren = {
   OrderConfirmRoute: OrderConfirmRoute,
   OrderFinishedRoute: OrderFinishedRoute,
   OrderHistoryRoute: OrderHistoryRoute,
-  ItemIndexRoute: ItemIndexRoute,
   CartIndexRoute: CartIndexRoute,
+  ItemIndexRoute: ItemIndexRoute,
   LoginIndexRoute: LoginIndexRoute,
   RegisterIndexRoute: RegisterIndexRoute,
 }
@@ -235,18 +235,18 @@ export const routeTree = rootRoute
     "__root__": {
       "filePath": "__root.tsx",
       "children": [
-        "/_item/$itemId",
+        "/item/$itemId",
         "/order/confirm",
         "/order/finished",
         "/order/history",
-        "/_item/",
         "/cart/",
+        "/item/",
         "/login/",
         "/register/"
       ]
     },
-    "/_item/$itemId": {
-      "filePath": "_item/$itemId.tsx"
+    "/item/$itemId": {
+      "filePath": "item/$itemId.tsx"
     },
     "/order/confirm": {
       "filePath": "order/confirm.tsx"
@@ -257,11 +257,11 @@ export const routeTree = rootRoute
     "/order/history": {
       "filePath": "order/history.tsx"
     },
-    "/_item/": {
-      "filePath": "_item/index.tsx"
-    },
     "/cart/": {
       "filePath": "cart/index.tsx"
+    },
+    "/item/": {
+      "filePath": "item/index.tsx"
     },
     "/login/": {
       "filePath": "login/index.tsx"
