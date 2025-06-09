@@ -1,0 +1,23 @@
+package com.example.ec.site.playground.service;
+
+import com.example.ec.site.playground.model.Item;
+import com.example.ec.site.playground.repository.ItemRepository;
+import java.util.List;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+/** アイテムの処理を行うサービスクラス. */
+@Service
+@RequiredArgsConstructor
+public class ItemService {
+  private final ItemRepository itemRepository;
+
+  /**
+   * アイテム一覧を取得するメソッド.
+   *
+   * @return アイテムのリスト
+   */
+  public List<Item> getAllItems() {
+    return itemRepository.findAll();
+  }
+}
