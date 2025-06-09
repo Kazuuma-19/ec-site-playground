@@ -1,16 +1,7 @@
 import { useEffect, useState } from "react";
 import { CustomLink } from "../../components/CustomLink";
 import { axiosInstance } from "../../lib/axiosInstance";
-
-type Item = {
-  itemId: number;
-  itemName: string;
-  itemDescription: string;
-  itemPriceM: number;
-  itemPriceL: number;
-  imagePath: string;
-  deleted: boolean;
-};
+import type { Item } from "./types/itemType";
 
 export function ItemPage() {
   const [items, setItems] = useState<Item[]>([]);
