@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -108,6 +109,24 @@ public class ItemController {
     cartItems.add(request);
     session.setAttribute(CART_ITEMS_SESSION, cartItems);
     return ResponseEntity.ok().build();
+  }
+
+  /**
+   * カートからアイテムを削除する.
+   *
+   * @param itemId アイテムID
+   * @param session HTTPセッション
+   * @return カートからアイテムを削除した結果
+   */
+  @DeleteMapping("/cart/{itemId}")
+  public ResponseEntity<?> removeItemFromCart(@PathVariable Integer itemId, HttpSession session) {
+    List<AddCartRequest> cartItems =
+        (List<AddCartRequest>) session.getAttribute(CART_ITEMS_SESSION);
+    if (cartItems != null) {
+      cartItems.removeIf(item -> item.getItemId().equals(itemId));
+      session.setAttribute(CART_ITEMS_SESSION, cartItems);
+    }
+    return ResponseEntity.noContent().build();
   }
 
   /**

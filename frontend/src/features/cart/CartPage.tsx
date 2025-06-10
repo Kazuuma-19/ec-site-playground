@@ -15,7 +15,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { axiosInstance } from "../../lib/axiosInstance";
 
 type Topping = {
@@ -48,16 +48,17 @@ export function CartPage() {
     });
   };
 
+  const fetchCart = useCallback(async () => {
+    const response = await axiosInstance.get("items/cart");
+    setCartItems(response.data);
+  }, []);
+
   /**
    * カート情報を取得する
    */
   useEffect(() => {
-    const fetchCart = async () => {
-      const response = await axiosInstance.get("items/cart");
-      setCartItems(response.data);
-    };
     fetchCart();
-  }, []);
+  }, [fetchCart]);
 
   /**
    * 消費税と合計金額を計算する
@@ -71,6 +72,20 @@ export function CartPage() {
     setTotalPrice(totalPrice);
     setTotalTax(totalTax);
   }, [cartItems]);
+
+  /**
+   * カートから商品を削除する
+   *
+   * @param itemId 削除する商品のID
+   */
+  const handleDelete = async (itemId: string) => {
+    try {
+      await axiosInstance.delete(`items/cart/${itemId}`);
+      fetchCart();
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   return (
     <>
@@ -130,7 +145,11 @@ export function CartPage() {
                   <TableCell align="center">{item.subtotalPrice}円</TableCell>
 
                   <TableCell align="center">
-                    <Button variant="contained" color="primary">
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={() => handleDelete(item.itemId)}
+                    >
                       削除
                     </Button>
                   </TableCell>
