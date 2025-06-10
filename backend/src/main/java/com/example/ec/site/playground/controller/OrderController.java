@@ -10,8 +10,10 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,6 +28,23 @@ public class OrderController {
   private final UserService userService;
 
   private static final String SESSION_USER_ID = "SESSION_USER_ID";
+
+  /**
+   * 注文情報を取得するエンドポイント.
+   *
+   * @param session HTTPセッション
+   * @return ユーザーの注文リスト
+   */
+  @GetMapping
+  public ResponseEntity<?> getOrder(HttpSession session) {
+    Integer userId = (Integer) session.getAttribute(SESSION_USER_ID);
+    if (userId == null) {
+      return ResponseEntity.status(401).body("ログインしていません");
+    }
+    User user = userService.getUserById(userId);
+    List<Order> orders = orderService.getOrdersByUser(userId);
+    return ResponseEntity.ok(orders);
+  }
 
   /**
    * 注文を作成するエンドポイント.
