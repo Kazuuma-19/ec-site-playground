@@ -12,17 +12,21 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /** アイテム操作を行うコントローラクラス. */
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/items")
 public class ItemController {
+  private static final String CART_ITEMS_SESSION = "cartItems";
   private final ItemService itemService;
   private final ToppingService toppingService;
-
-  private static final String CART_ITEMS_SESSION = "cartItems";
 
   /**
    * アイテム一覧を取得する.
@@ -109,8 +113,8 @@ public class ItemController {
   /**
    * トッピングIdからトッピング情報を取得し、レスポンスリストを作成する.
    *
-   * @param toppingIdList　トッピングIDのリスト
-   * @param itemSize　アイテムのサイズ（MまたはL）
+   * @param toppingIdList トッピングIDのリスト
+   * @param itemSize アイテムのサイズ（MまたはL）
    * @return トッピング情報のレスポンスリスト
    */
   private List<ToppingResponse> getToppingResponses(
