@@ -17,3 +17,9 @@ front:
 
 back:
 	cd backend && ./gradlew bootRun
+
+front-check:
+	cd frontend && npx biome lint
+
+back-check:
+	cd backend && ./gradlew checkstyleMain

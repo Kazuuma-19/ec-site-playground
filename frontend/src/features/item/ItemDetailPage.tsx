@@ -17,15 +17,42 @@ import {
   Select,
   Typography,
 } from "@mui/material";
-import { useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useNavigate, useParams } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { axiosInstance } from "../../lib/axiosInstance";
+import type { Item } from "./types/itemType";
+
+const toppingList = [
+  "オニオン",
+  "チーズ",
+  "ピーマン",
+  "ロースハム",
+  "ほうれん草",
+  "ぺパロに",
+  "グリルナス",
+  "あらびきソーセージ",
+];
 
 export function ItemDetailPage() {
   const [size, setSize] = useState("M");
   const [toppings, setToppings] = useState<string[]>([]);
   const [quantity, setQuantity] = useState(1);
+  const [item, setItem] = useState<Item>();
+  const { itemId } = useParams({ from: "/item/$itemId" });
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchItem = async () => {
+      try {
+        const response = await axiosInstance.get(`/items/${itemId}`);
+        setItem(response.data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchItem();
+  }, [itemId]);
 
   const handleToppingChange = (topping: string) => {
     setToppings((prev) =>
@@ -36,8 +63,11 @@ export function ItemDetailPage() {
   };
 
   const totalPrice = () => {
-    const basePrice = size === "M" ? 1380 : 2380;
+    const basePrice = size === "M" ? item?.itemPriceM : item?.itemPriceL;
     const toppingPrice = size === "M" ? 200 : 300;
+    if (basePrice === undefined) {
+      return 0;
+    }
     return (basePrice + toppings.length * toppingPrice) * quantity;
   };
 
@@ -53,26 +83,25 @@ export function ItemDetailPage() {
         <Typography variant="h4">商品詳細</Typography>
       </Box>
       <Grid container spacing={4} justifyContent="center">
-        <Grid item xs={12} md={5}>
+        <Grid size={6}>
           <Card>
             <CardMedia
               component="img"
               height="300"
-              image="/1.jpg"
-              alt="じゃがバターベーコン"
+              image={item?.imagePath}
+              alt={item?.itemName}
               className="object-cover"
             />
           </Card>
         </Grid>
-        <Grid item xs={12} md={5}>
+
+        <Grid size={12}>
           <CardContent>
             <Typography variant="h5" className="mb-4">
-              じゃがバターベーコン
+              {item?.itemName}
             </Typography>
-            <Typography paragraph className="mb-6">
-              マイルドな味付けのカレーに大きくカットしたポテトをのせた、
-              バターとチーズの風味が食欲をそそるお子様でも楽しめる商品です。
-            </Typography>
+
+            <Typography className="mb-6">{item?.itemDescription}</Typography>
 
             <Box className="mb-4">
               <FormControl component="fieldset">
@@ -84,12 +113,12 @@ export function ItemDetailPage() {
                   <FormControlLabel
                     value="M"
                     control={<Radio />}
-                    label="M: 1,380円(税抜)"
+                    label={`M: ${item?.itemPriceM.toLocaleString()}円(税抜)`}
                   />
                   <FormControlLabel
                     value="L"
                     control={<Radio />}
-                    label="L: 2,380円(税抜)"
+                    label={`L: ${item?.itemPriceL.toLocaleString()}円(税抜)`}
                   />
                 </RadioGroup>
               </FormControl>
@@ -99,17 +128,9 @@ export function ItemDetailPage() {
               <FormLabel component="legend">
                 トッピング（M: 200円 / L: 300円）
               </FormLabel>
+
               <Box className="grid grid-cols-2 gap-2 mt-2">
-                {[
-                  "オニオン",
-                  "チーズ",
-                  "ピーマン",
-                  "ロースハム",
-                  "ほうれん草",
-                  "ぺパロに",
-                  "グリルナス",
-                  "あらびきソーセージ",
-                ].map((topping) => (
+                {toppingList.map((topping) => (
                   <FormControlLabel
                     key={topping}
                     control={
