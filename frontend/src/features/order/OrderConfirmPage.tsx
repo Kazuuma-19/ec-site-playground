@@ -15,9 +15,15 @@ import {
   Typography,
 } from "@mui/material";
 import { useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { fetchCartItems } from "../cart/api/cartApi";
+import type { CartItem } from "../cart/types/cartType";
+import { Container } from "@mui/material";
 
 export function OrderConfirmPage() {
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const navigate = useNavigate();
+
   const handleOrder = () => {
     navigate({
       to: "/order/finished",
@@ -25,9 +31,18 @@ export function OrderConfirmPage() {
     });
   };
 
+  useEffect(() => {
+    const fetchCart = async () => {
+      const cartItems = await fetchCartItems();
+      setCartItems(cartItems);
+    };
+
+    fetchCart();
+  }, []);
+
   return (
-    <div className="container mx-auto p-4">
-      <Typography variant="h5" align="center" gutterBottom>
+    <Container sx={{ my: 5 }}>
+      <Typography variant="h4" align="center" mb={3}>
         注文内容確認
       </Typography>
 
@@ -42,23 +57,32 @@ export function OrderConfirmPage() {
         </TableHead>
 
         <TableBody>
-          {[1, 2, 3].map((item) => (
-            <TableRow key={item}>
+          {cartItems.map((item) => (
+            <TableRow key={item.itemId}>
               <TableCell>
                 <div className="flex flex-col items-center">
-                  <img src="/1.jpg" width={100} alt="pizza" />
-                  じゃがバターベーコン
+                  <img src={item.imagePath} width={100} alt="pizza" />
+                  {item.itemName}
                 </div>
               </TableCell>
-              <TableCell>Ｌ 2,380円 1個</TableCell>
-              <TableCell>
+
+              <TableCell align="center">
+                {`${item.size} ${item.itemPrice.toLocaleString()}円 ${item.quantity}個`}
+              </TableCell>
+
+              <TableCell align="center">
                 <ul>
-                  <li>ピーマン300円</li>
-                  <li>オニオン300円</li>
-                  <li>あらびきソーセージ300円</li>
+                  {item.toppingList?.map((topping) => (
+                    <li key={topping.toppingId}>
+                      {`${topping.toppingName} ${topping.toppingPrice.toLocaleString()}円`}
+                    </li>
+                  ))}
                 </ul>
               </TableCell>
-              <TableCell align="center">3,280円</TableCell>
+
+              <TableCell align="center">
+                {`${item.subtotalPrice.toLocaleString()}円`}
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>
@@ -160,6 +184,6 @@ export function OrderConfirmPage() {
           この内容で注文する
         </Button>
       </div>
-    </div>
+    </Container>
   );
 }

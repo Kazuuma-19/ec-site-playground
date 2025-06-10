@@ -12,7 +12,7 @@ import lombok.Setter;
 public class CartItemResponse {
   private Integer itemId;
   private String itemName;
-  private String itemPath;
+  private String imagePath;
   private Character size;
   private Integer itemPrice;
   private Integer quantity;
