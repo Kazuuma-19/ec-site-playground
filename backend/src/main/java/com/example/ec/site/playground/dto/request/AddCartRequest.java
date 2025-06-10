@@ -11,10 +11,8 @@ import lombok.Setter;
 @NoArgsConstructor
 public class AddCartRequest {
   private Integer itemId;
-  // MまたはL
   private Character size;
   private Integer quantity;
   private Integer subtotalPrice;
-  // topping_idのリスト
   private List<Integer> toppingIdList;
 }
