@@ -1,4 +1,4 @@
-package com.example.ec_site_playground;
+package com.example.ec.site.playground;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
