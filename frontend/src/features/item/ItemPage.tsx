@@ -2,22 +2,24 @@ import { useEffect, useState } from "react";
 import { CustomLink } from "../../components/CustomLink";
 import { axiosInstance } from "../../lib/axiosInstance";
 import type { Item } from "./types/itemType";
+import { FormControl, InputLabel, Select, MenuItem } from "@mui/material";
 
 export function ItemPage() {
   const [items, setItems] = useState<Item[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [sort, setSort] = useState<"priceAsc" | "priceDesc">("priceAsc");
 
   useEffect(() => {
     const fetchItems = async () => {
       try {
-        const response = await axiosInstance.get("/items");
+        const response = await axiosInstance.get(`/items?sort=${sort}`);
         setItems(response.data);
       } catch (error) {
         console.error(error);
       }
     };
     fetchItems();
-  }, []);
+  }, [sort]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,6 +54,25 @@ export function ItemPage() {
             クリア
           </button>
         </form>
+      </div>
+
+      <div className="text-right mb-3 mr-2">
+        <FormControl variant="standard" sx={{ minWidth: 120 }}>
+          <InputLabel id="item-sort-label">並び替え</InputLabel>
+
+          <Select
+            labelId="item-sort-label"
+            id="item-sort-select"
+            value={sort}
+            onChange={(e) => setSort(e.target.value)}
+            label="並び替え"
+          >
+            <MenuItem value="priceAsc" selected>
+              価格が安い順
+            </MenuItem>
+            <MenuItem value="priceDesc">価格が高い順</MenuItem>
+          </Select>
+        </FormControl>
       </div>
 
       {/* Pizza Items Grid */}
