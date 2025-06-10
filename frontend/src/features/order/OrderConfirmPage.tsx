@@ -18,18 +18,74 @@ import { useNavigate } from "@tanstack/react-router";
 import { Container } from "@mui/material";
 import { useTotalPrice } from "../cart/hooks/useTotalPrice";
 import { useCartItem } from "../cart/hooks/useCartItem";
+import { axiosInstance } from "../../lib/axiosInstance";
+import { useState } from "react";
+
+type OrderForm = {
+  destinationName: string;
+  destinationEmail: string;
+  destinationZipcode: string;
+  destinationAddress: string;
+  destinationTelephone: string;
+  deliveryTime: string;
+  paymentMethod: number;
+};
+
+type OrderRequest = OrderForm & {
+  destinationPrefecture: string;
+  destinationMunicipalities: string;
+  totalPrice: number;
+};
+
+const deliveryTimeOptions = [
+  "10時",
+  "11時",
+  "12時",
+  "13時",
+  "14時",
+  "15時",
+  "16時",
+  "17時",
+  "18時",
+];
 
 export function OrderConfirmPage() {
   const { cartItems } = useCartItem();
   const { totalPrice, totalTax } = useTotalPrice(cartItems);
+  const [orderForm, setOrderForm] = useState<OrderForm>({
+    destinationName: "",
+    destinationEmail: "",
+    destinationZipcode: "",
+    destinationAddress: "",
+    destinationTelephone: "",
+    deliveryTime: new Date().toISOString().split("T")[0],
+    paymentMethod: 0,
+  });
 
   const navigate = useNavigate();
 
-  const handleOrder = () => {
-    navigate({
-      to: "/order/finished",
-      replace: true, // 戻るボタンで戻れないようにする
-    });
+  const handleOrder = async () => {
+    const orderRequest: OrderRequest = {
+      ...orderForm,
+      deliveryTime: `${orderForm.deliveryTime} 10:00:00`,
+      totalPrice,
+      destinationPrefecture: "東京都",
+      destinationMunicipalities: "新宿区",
+    };
+
+    try {
+      await axiosInstance.post("/orders", orderRequest);
+      navigate({
+        to: "/order/finished",
+        replace: true, // 戻るボタンで戻れないようにする
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setOrderForm({ ...orderForm, [e.target.name]: e.target.value });
   };
 
   return (
@@ -98,47 +154,72 @@ export function OrderConfirmPage() {
           <form className="space-y-4">
             <div>
               <FormLabel>名前</FormLabel>
-              <TextField fullWidth label="お名前" />
+              <TextField
+                fullWidth
+                label="お名前"
+                name="destinationName"
+                value={orderForm.destinationName}
+                onChange={handleChange}
+              />
             </div>
 
             <div>
               <FormLabel>メールアドレス</FormLabel>
-              <TextField fullWidth label="メールアドレス" />
+              <TextField
+                fullWidth
+                label="メールアドレス"
+                name="destinationEmail"
+                value={orderForm.destinationEmail}
+                onChange={handleChange}
+              />
             </div>
 
             <div>
               <FormLabel>郵便番号</FormLabel>
               <div className="flex items-center gap-2">
-                <TextField label="郵便番号" />
+                <TextField
+                  label="郵便番号"
+                  name="destinationZipcode"
+                  value={orderForm.destinationZipcode}
+                  onChange={handleChange}
+                />
                 <Button variant="outlined">住所検索</Button>
               </div>
             </div>
 
             <div>
               <FormLabel>住所</FormLabel>
-              <TextField fullWidth label="住所" />
+              <TextField
+                fullWidth
+                label="住所"
+                name="destinationAddress"
+                value={orderForm.destinationAddress}
+                onChange={handleChange}
+              />
             </div>
 
             <div>
               <FormLabel>電話番号</FormLabel>
-              <TextField fullWidth label="電話番号" />
+              <TextField
+                fullWidth
+                label="電話番号"
+                name="destinationTelephone"
+                value={orderForm.destinationTelephone}
+                onChange={handleChange}
+              />
             </div>
 
             <div>
               <FormLabel>配達日</FormLabel>
-              <input type="date" className="border rounded p-2 w-full" />
+              <input
+                type="date"
+                className="border rounded p-2 w-full"
+                name="deliveryTime"
+                value={orderForm.deliveryTime}
+                onChange={handleChange}
+              />
               <RadioGroup row defaultValue="10時">
-                {[
-                  "10時",
-                  "11時",
-                  "12時",
-                  "13時",
-                  "14時",
-                  "15時",
-                  "16時",
-                  "17時",
-                  "18時",
-                ].map((time) => (
+                {deliveryTimeOptions.map((time) => (
                   <FormControlLabel
                     key={time}
                     value={time}
@@ -158,14 +239,16 @@ export function OrderConfirmPage() {
           <Typography variant="h6" align="center" gutterBottom>
             お支払い方法
           </Typography>
-          <RadioGroup defaultValue="代金引換">
+
+          <RadioGroup
+            defaultValue="代金引換"
+            name="paymentMethod"
+            value={orderForm.paymentMethod}
+            onChange={handleChange}
+          >
+            <FormControlLabel value={0} control={<Radio />} label="代金引換" />
             <FormControlLabel
-              value="代金引換"
-              control={<Radio />}
-              label="代金引換"
-            />
-            <FormControlLabel
-              value="クレジットカード"
+              value={1}
               control={<Radio />}
               label="クレジットカード"
             />
