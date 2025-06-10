@@ -22,6 +22,17 @@ import { useEffect, useState } from "react";
 import { axiosInstance } from "../../lib/axiosInstance";
 import type { Item } from "./types/itemType";
 
+const toppingList = [
+  "オニオン",
+  "チーズ",
+  "ピーマン",
+  "ロースハム",
+  "ほうれん草",
+  "ぺパロに",
+  "グリルナス",
+  "あらびきソーセージ",
+];
+
 export function ItemDetailPage() {
   const [size, setSize] = useState("M");
   const [toppings, setToppings] = useState<string[]>([]);
@@ -52,8 +63,11 @@ export function ItemDetailPage() {
   };
 
   const totalPrice = () => {
-    const basePrice = size === "M" ? 1380 : 2380;
+    const basePrice = size === "M" ? item?.itemPriceM : item?.itemPriceL;
     const toppingPrice = size === "M" ? 200 : 300;
+    if (basePrice === undefined) {
+      return 0;
+    }
     return (basePrice + toppings.length * toppingPrice) * quantity;
   };
 
@@ -69,7 +83,7 @@ export function ItemDetailPage() {
         <Typography variant="h4">商品詳細</Typography>
       </Box>
       <Grid container spacing={4} justifyContent="center">
-        <Grid item xs={12} md={5}>
+        <Grid size={6}>
           <Card>
             <CardMedia
               component="img"
@@ -81,7 +95,7 @@ export function ItemDetailPage() {
           </Card>
         </Grid>
 
-        <Grid item xs={12} md={5}>
+        <Grid size={12}>
           <CardContent>
             <Typography variant="h5" className="mb-4">
               {item?.itemName}
@@ -114,17 +128,9 @@ export function ItemDetailPage() {
               <FormLabel component="legend">
                 トッピング（M: 200円 / L: 300円）
               </FormLabel>
+
               <Box className="grid grid-cols-2 gap-2 mt-2">
-                {[
-                  "オニオン",
-                  "チーズ",
-                  "ピーマン",
-                  "ロースハム",
-                  "ほうれん草",
-                  "ぺパロに",
-                  "グリルナス",
-                  "あらびきソーセージ",
-                ].map((topping) => (
+                {toppingList.map((topping) => (
                   <FormControlLabel
                     key={topping}
                     control={
