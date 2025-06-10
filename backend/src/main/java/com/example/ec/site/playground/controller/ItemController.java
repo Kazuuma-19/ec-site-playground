@@ -45,42 +45,58 @@ public class ItemController {
     return ResponseEntity.ok(itemService.getItemById(itemId));
   }
 
+  /**
+   * カートに追加されたアイテムを取得する.
+   *
+   * @param session HTTPセッション
+   * @return カートに追加されたアイテムのリスト
+   */
   @GetMapping("/cart")
   public ResponseEntity<?> getCartItems(HttpSession session) {
     List<AddCartRequest> cartItems =
         (List<AddCartRequest>) session.getAttribute(CART_ITEMS_SESSION);
 
-    CartItemResponse cartItemResponse = new CartItemResponse();
-    List<ToppingResponse> toppingList = new ArrayList<>();
+    List<CartItemResponse> responses = new ArrayList<>();
     for (AddCartRequest cartItem : cartItems) {
+      CartItemResponse cartItemResponse = new CartItemResponse();
+      List<ToppingResponse> toppingList = new ArrayList<>();
+
       Integer itemId = cartItem.getItemId();
       Character itemSize = cartItem.getSize();
       Integer quantity = cartItem.getQuantity();
+      Integer subtotalPrice = cartItem.getSubtotalPrice();
 
       // アイテムの情報をレスポンスにセットする
       Item item = itemService.getItemById(itemId);
       cartItemResponse.setItemId(itemId);
       cartItemResponse.setItemName(item.getItemName());
       cartItemResponse.setItemPath(item.getItemPath());
+      cartItemResponse.setSize(itemSize);
       cartItemResponse.setItemPrice(
           itemSize.equals('M') ? item.getItemPriceM() : item.getItemPriceL());
       cartItemResponse.setQuantity(quantity);
+      cartItemResponse.setSubtotalPrice(subtotalPrice);
 
-      // トッピングの情報をレスポンスにセットする
-      for (Integer cartToppingId : cartItem.getToppingIdList()) {
-        ToppingResponse toppingResponse = new ToppingResponse();
-        Topping topping = toppingService.getToppingById(cartToppingId);
+      List<Integer> toppingIdList = cartItem.getToppingIdList();
+      if (!toppingIdList.isEmpty()) {
+        // トッピングの情報をレスポンスにセットする
+        for (Integer cartToppingId : toppingIdList) {
+          ToppingResponse toppingResponse = new ToppingResponse();
+          Topping topping = toppingService.getToppingById(cartToppingId);
 
-        toppingResponse.setToppingId(topping.getToppingId());
-        toppingResponse.setToppingName(topping.getToppingName());
-        toppingResponse.setToppingPrice(
-            itemSize.equals('M') ? topping.getPriceM() : topping.getPriceL());
+          toppingResponse.setToppingId(topping.getToppingId());
+          toppingResponse.setToppingName(topping.getToppingName());
+          toppingResponse.setToppingPrice(
+              itemSize.equals('M') ? topping.getPriceM() : topping.getPriceL());
 
-        toppingList.add(toppingResponse);
+          toppingList.add(toppingResponse);
+        }
       }
+      cartItemResponse.setToppingList(toppingList);
+      // カートアイテムのレスポンスリストに追加
+      responses.add(cartItemResponse);
     }
-    cartItemResponse.setToppingList(toppingList);
-    return ResponseEntity.ok(cartItemResponse);
+    return ResponseEntity.ok(responses);
   }
 
   /**

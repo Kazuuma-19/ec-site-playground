@@ -13,6 +13,7 @@ public class CartItemResponse {
   private Integer itemId;
   private String itemName;
   private String itemPath;
+  private Character size;
   private Integer itemPrice;
   private Integer quantity;
   private List<ToppingResponse> toppingList;
