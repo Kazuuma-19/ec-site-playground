@@ -55,48 +55,35 @@ public class ItemController {
   public ResponseEntity<?> getCartItems(HttpSession session) {
     List<AddCartRequest> cartItems =
         (List<AddCartRequest>) session.getAttribute(CART_ITEMS_SESSION);
+    // セッションにカートアイテムが存在しない場合は空のリストを返す
+    if (cartItems == null || cartItems.isEmpty()) {
+      return ResponseEntity.ok(new ArrayList<>());
+    }
 
-    List<CartItemResponse> responses = new ArrayList<>();
+    List<CartItemResponse> responseList = new ArrayList<>();
     for (AddCartRequest cartItem : cartItems) {
-      CartItemResponse cartItemResponse = new CartItemResponse();
-      List<ToppingResponse> toppingList = new ArrayList<>();
-
-      Integer itemId = cartItem.getItemId();
       Character itemSize = cartItem.getSize();
-      Integer quantity = cartItem.getQuantity();
-      Integer subtotalPrice = cartItem.getSubtotalPrice();
 
       // アイテムの情報をレスポンスにセットする
-      Item item = itemService.getItemById(itemId);
-      cartItemResponse.setItemId(itemId);
+      CartItemResponse cartItemResponse = new CartItemResponse();
+      cartItemResponse.setItemId(cartItem.getItemId());
+      cartItemResponse.setSize(itemSize);
+      cartItemResponse.setQuantity(cartItem.getQuantity());
+      cartItemResponse.setSubtotalPrice(cartItem.getSubtotalPrice());
+
+      Item item = itemService.getItemById(cartItem.getItemId());
       cartItemResponse.setItemName(item.getItemName());
       cartItemResponse.setItemPath(item.getItemPath());
-      cartItemResponse.setSize(itemSize);
       cartItemResponse.setItemPrice(
           itemSize.equals('M') ? item.getItemPriceM() : item.getItemPriceL());
-      cartItemResponse.setQuantity(quantity);
-      cartItemResponse.setSubtotalPrice(subtotalPrice);
 
       List<Integer> toppingIdList = cartItem.getToppingIdList();
-      if (!toppingIdList.isEmpty()) {
-        // トッピングの情報をレスポンスにセットする
-        for (Integer cartToppingId : toppingIdList) {
-          ToppingResponse toppingResponse = new ToppingResponse();
-          Topping topping = toppingService.getToppingById(cartToppingId);
-
-          toppingResponse.setToppingId(topping.getToppingId());
-          toppingResponse.setToppingName(topping.getToppingName());
-          toppingResponse.setToppingPrice(
-              itemSize.equals('M') ? topping.getPriceM() : topping.getPriceL());
-
-          toppingList.add(toppingResponse);
-        }
-      }
-      cartItemResponse.setToppingList(toppingList);
+      List<ToppingResponse> toppingResponseList = getToppingResponses(toppingIdList, itemSize);
+      cartItemResponse.setToppingList(toppingResponseList);
       // カートアイテムのレスポンスリストに追加
-      responses.add(cartItemResponse);
+      responseList.add(cartItemResponse);
     }
-    return ResponseEntity.ok(responses);
+    return ResponseEntity.ok(responseList);
   }
 
   /**
@@ -117,5 +104,32 @@ public class ItemController {
     cartItems.add(request);
     session.setAttribute(CART_ITEMS_SESSION, cartItems);
     return ResponseEntity.ok().build();
+  }
+
+  /**
+   * トッピングIdからトッピング情報を取得し、レスポンスリストを作成する.
+   *
+   * @param toppingIdList　トッピングIDのリスト
+   * @param itemSize　アイテムのサイズ（MまたはL）
+   * @return トッピング情報のレスポンスリスト
+   */
+  private List<ToppingResponse> getToppingResponses(
+      List<Integer> toppingIdList, Character itemSize) {
+    List<ToppingResponse> toppingResponseList = new ArrayList<>();
+    // トッピングがない場合は空のリストを返す
+    if (toppingIdList == null || toppingIdList.isEmpty()) {
+      return toppingResponseList;
+    }
+    for (Integer toppingId : toppingIdList) {
+      Topping topping = toppingService.getToppingById(toppingId);
+
+      ToppingResponse toppingResponse = new ToppingResponse();
+      toppingResponse.setToppingId(topping.getToppingId());
+      toppingResponse.setToppingName(topping.getToppingName());
+      toppingResponse.setToppingPrice(
+          itemSize.equals('M') ? topping.getPriceM() : topping.getPriceL());
+      toppingResponseList.add(toppingResponse);
+    }
+    return toppingResponseList;
   }
 }
