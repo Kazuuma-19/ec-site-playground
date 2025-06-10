@@ -15,27 +15,30 @@ import {
   Typography,
 } from "@mui/material";
 import { useNavigate } from "@tanstack/react-router";
+import { useCallback, useEffect, useState } from "react";
+import { axiosInstance } from "../../lib/axiosInstance";
 
-const cartItems = [
-  {
-    name: "じゃがバターベーコン",
-    size: "L",
-    price: 2380,
-    quantity: 1,
-    toppings: [
-      { name: "ピーマン", price: 300 },
-      { name: "オニオン", price: 300 },
-      { name: "あらびきソーセージ", price: 300 },
-    ],
-    subtotal: 3280,
-    image: "/1.jpg",
-  },
-  // 他のアイテムもここに追加可能
-];
+type Topping = {
+  toppingId: number;
+  toppingName: string;
+  toppingPrice: number;
+};
+
+type CartItem = {
+  itemId: string;
+  itemName: string;
+  imagePath: string;
+  itemPrice: number;
+  size: string;
+  quantity: number;
+  toppingList?: Topping[];
+  subtotalPrice: number;
+};
 
 export function CartPage() {
-  const totalTax = 8000;
-  const totalPrice = 38000;
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [totalTax, setTotalTax] = useState(0);
+  const [totalPrice, setTotalPrice] = useState(0);
 
   const navigate = useNavigate();
 
@@ -45,10 +48,49 @@ export function CartPage() {
     });
   };
 
+  const fetchCart = useCallback(async () => {
+    const response = await axiosInstance.get("items/cart");
+    setCartItems(response.data);
+  }, []);
+
+  /**
+   * カート情報を取得する
+   */
+  useEffect(() => {
+    fetchCart();
+  }, [fetchCart]);
+
+  /**
+   * 消費税と合計金額を計算する
+   */
+  useEffect(() => {
+    const totalPrice = cartItems.reduce(
+      (acc, item) => acc + item.subtotalPrice,
+      0,
+    );
+    const totalTax = Math.ceil(totalPrice * 0.1);
+    setTotalPrice(totalPrice);
+    setTotalTax(totalTax);
+  }, [cartItems]);
+
+  /**
+   * カートから商品を削除する
+   *
+   * @param itemId 削除する商品のID
+   */
+  const handleDelete = async (itemId: string) => {
+    try {
+      await axiosInstance.delete(`items/cart/${itemId}`);
+      fetchCart();
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
     <>
       <Container sx={{ mt: 4 }}>
-        <Typography variant="h4" align="center" gutterBottom>
+        <Typography variant="h4" align="center" mb={3}>
           ショッピングカート
         </Typography>
 
@@ -66,39 +108,48 @@ export function CartPage() {
 
             <TableBody>
               {cartItems.map((item) => (
-                <TableRow key={item.name}>
+                <TableRow key={item.itemId}>
                   <TableCell>
                     <Box textAlign="center">
                       <img
-                        src={item.image}
-                        alt={item.name}
+                        src={item.imagePath}
+                        alt={item.itemName}
                         width="100"
                         height="100"
                         className="inline-block"
                       />
-                      <Typography>{item.name}</Typography>
+                      <Typography>{item.itemName}</Typography>
                     </Box>
                   </TableCell>
+
                   <TableCell align="center">
-                    {item.size}&nbsp;&nbsp;{item.price.toLocaleString()}
-                    円&nbsp;&nbsp;{item.quantity}個
+                    {`${item.size} ${item.itemPrice}円 × ${item.quantity}個`}
                   </TableCell>
+
                   <TableCell>
                     <List dense>
-                      {item.toppings.map((topping) => (
-                        <ListItem key={topping.name} disablePadding>
+                      {item.toppingList?.map((topping) => (
+                        <ListItem
+                          key={topping.toppingId}
+                          disablePadding
+                          sx={{ textAlign: "center" }}
+                        >
                           <ListItemText
-                            primary={`${topping.name} ${topping.price}円`}
+                            primary={`${topping.toppingName} ${topping.toppingPrice}円`}
                           />
                         </ListItem>
                       ))}
                     </List>
                   </TableCell>
+
+                  <TableCell align="center">{item.subtotalPrice}円</TableCell>
+
                   <TableCell align="center">
-                    {item.subtotal.toLocaleString()}円
-                  </TableCell>
-                  <TableCell align="center">
-                    <Button variant="contained" color="primary">
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={() => handleDelete(item.itemId)}
+                    >
                       削除
                     </Button>
                   </TableCell>
