@@ -1,4 +1,5 @@
 import {
+  Alert,
   Box,
   Button,
   Container,
@@ -39,10 +40,21 @@ export function CartPage() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [totalTax, setTotalTax] = useState(0);
   const [totalPrice, setTotalPrice] = useState(0);
+  const [isErrorAlertOpen, setIsErrorAlertOpen] = useState<boolean>(false);
 
   const navigate = useNavigate();
 
   const handleOrder = () => {
+    if (cartItems.length === 0) {
+      setIsErrorAlertOpen(true);
+
+      setTimeout(() => {
+        setIsErrorAlertOpen(false);
+      }, 3000);
+
+      return;
+    }
+
     navigate({
       to: "/order/confirm",
     });
@@ -177,6 +189,19 @@ export function CartPage() {
           </Button>
         </Box>
       </Container>
+
+      {isErrorAlertOpen && (
+        <Alert
+          severity="error"
+          sx={{
+            position: "fixed",
+            bottom: 16,
+            right: 16,
+          }}
+        >
+          カートに商品がありません
+        </Alert>
+      )}
     </>
   );
 }
