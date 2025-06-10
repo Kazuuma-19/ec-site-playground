@@ -78,7 +78,7 @@ public class ItemController {
 
       Item item = itemService.getItemById(cartItem.getItemId());
       cartItemResponse.setItemName(item.getItemName());
-      cartItemResponse.setItemPath(item.getItemPath());
+      cartItemResponse.setImagePath(item.getImagePath());
       cartItemResponse.setItemPrice(
           itemSize.equals('M') ? item.getItemPriceM() : item.getItemPriceL());
 

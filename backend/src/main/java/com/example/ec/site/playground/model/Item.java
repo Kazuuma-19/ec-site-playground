@@ -48,7 +48,7 @@ public class Item {
 
   /** 画像のパス. */
   @Column(name = "image_path", nullable = false)
-  private String itemPath;
+  private String imagePath;
 
   /** 削除フラグ. */
   @Column(name = "deleted")
