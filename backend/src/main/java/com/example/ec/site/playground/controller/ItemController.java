@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /** アイテム操作を行うコントローラクラス. */
@@ -30,13 +31,15 @@ public class ItemController {
   private final ToppingService toppingService;
 
   /**
-   * アイテム一覧を取得する.
+   * アイテムを価格でソートして取得する.
    *
-   * @return アイテムのリスト
+   * @param sort ソートの順序（priceAsc, priceDesc）
+   * @return ソートされたアイテムのリスト
    */
   @GetMapping
-  public ResponseEntity<?> getAllItems() {
-    return ResponseEntity.ok(itemService.getAllItems());
+  public ResponseEntity<?> getSortedItems(@RequestParam(defaultValue = "priceAsc") String sort) {
+    List<Item> items = itemService.findItemsSortedByPrice(sort);
+    return ResponseEntity.ok(items);
   }
 
   /**
