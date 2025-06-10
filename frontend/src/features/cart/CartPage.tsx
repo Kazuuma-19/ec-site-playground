@@ -6,25 +6,22 @@ import {
   List,
   ListItem,
   ListItemText,
-  Paper,
   Table,
   TableBody,
   TableCell,
-  TableContainer,
   TableHead,
   TableRow,
   Typography,
 } from "@mui/material";
 import { useNavigate } from "@tanstack/react-router";
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 import { axiosInstance } from "../../lib/axiosInstance";
-import type { CartItem } from "./types/cartType";
-import { fetchCartItems } from "./api/cartApi";
+import { useTotalPrice } from "./hooks/useTotalPrice";
+import { useCartItem } from "./hooks/useCartItem";
 
 export function CartPage() {
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const [totalTax, setTotalTax] = useState(0);
-  const [totalPrice, setTotalPrice] = useState(0);
+  const { fetchCart, cartItems } = useCartItem();
+  const { totalPrice, totalTax } = useTotalPrice(cartItems);
   const [isErrorAlertOpen, setIsErrorAlertOpen] = useState<boolean>(false);
 
   const navigate = useNavigate();
@@ -44,31 +41,6 @@ export function CartPage() {
       to: "/order/confirm",
     });
   };
-
-  const fetchCart = useCallback(async () => {
-    const cartItems = await fetchCartItems();
-    setCartItems(cartItems);
-  }, []);
-
-  /**
-   * カート情報を取得する
-   */
-  useEffect(() => {
-    fetchCart();
-  }, [fetchCart]);
-
-  /**
-   * 消費税と合計金額を計算する
-   */
-  useEffect(() => {
-    const totalPrice = cartItems.reduce(
-      (acc, item) => acc + item.subtotalPrice,
-      0,
-    );
-    const totalTax = Math.ceil(totalPrice * 0.1);
-    setTotalPrice(totalPrice);
-    setTotalTax(totalTax);
-  }, [cartItems]);
 
   /**
    * カートから商品を削除する

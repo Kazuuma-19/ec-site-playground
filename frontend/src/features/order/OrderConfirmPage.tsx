@@ -15,13 +15,14 @@ import {
   Typography,
 } from "@mui/material";
 import { useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { fetchCartItems } from "../cart/api/cartApi";
-import type { CartItem } from "../cart/types/cartType";
 import { Container } from "@mui/material";
+import { useTotalPrice } from "../cart/hooks/useTotalPrice";
+import { useCartItem } from "../cart/hooks/useCartItem";
 
 export function OrderConfirmPage() {
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const { cartItems } = useCartItem();
+  const { totalPrice, totalTax } = useTotalPrice(cartItems);
+
   const navigate = useNavigate();
 
   const handleOrder = () => {
@@ -30,15 +31,6 @@ export function OrderConfirmPage() {
       replace: true, // 戻るボタンで戻れないようにする
     });
   };
-
-  useEffect(() => {
-    const fetchCart = async () => {
-      const cartItems = await fetchCartItems();
-      setCartItems(cartItems);
-    };
-
-    fetchCart();
-  }, []);
 
   return (
     <Container sx={{ my: 5 }}>
@@ -90,8 +82,10 @@ export function OrderConfirmPage() {
 
       {/* 合計金額 */}
       <div className="text-center mb-8">
-        <p className="text-lg">消費税：8,000円</p>
-        <p className="text-xl font-bold">ご注文金額合計：38,000円 (税込)</p>
+        <p className="text-lg">消費税：{totalTax.toLocaleString()}円</p>
+        <p className="text-xl font-bold">
+          ご注文金額合計：{totalPrice.toLocaleString()}円 (税込)
+        </p>
       </div>
 
       {/* お届け先情報 */}
