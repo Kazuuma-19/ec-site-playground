@@ -2,28 +2,50 @@ import { useEffect, useState } from "react";
 import { CustomLink } from "../../components/CustomLink";
 import { axiosInstance } from "../../lib/axiosInstance";
 import type { Item } from "./types/itemType";
-import { FormControl, InputLabel, Select, MenuItem } from "@mui/material";
+import {
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Pagination,
+} from "@mui/material";
 
 export function ItemPage() {
   const [items, setItems] = useState<Item[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [sort, setSort] = useState<"priceAsc" | "priceDesc">("priceAsc");
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
 
   useEffect(() => {
     const fetchItems = async () => {
       try {
-        const response = await axiosInstance.get(`/items?sort=${sort}`);
-        setItems(response.data);
+        const response = await axiosInstance.get(
+          `/items?sort=${sort}&page=${page}&size=9`,
+        );
+        console.log(response.data);
+        setItems(response.data.content);
+        setTotalPages(response.data.totalPages);
       } catch (error) {
         console.error(error);
       }
     };
     fetchItems();
-  }, [sort]);
+  }, [sort, page]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     // TODO: Implement search logic
+  };
+
+  /**
+   * ページネーションのページ変更
+   *
+   * @param _ 使用しない
+   * @param value ページ番号(1~)
+   */
+  const handlePageChange = (_: React.ChangeEvent<unknown>, value: number) => {
+    setPage(value - 1); // ページ番号は0から始まるため1を引く
   };
 
   return (
@@ -56,7 +78,7 @@ export function ItemPage() {
         </form>
       </div>
 
-      <div className="text-right mb-3 mr-2">
+      <div className="flex justify-between items-end mb-3">
         <FormControl variant="standard" sx={{ minWidth: 120 }}>
           <InputLabel id="item-sort-label">並び替え</InputLabel>
 
@@ -73,6 +95,10 @@ export function ItemPage() {
             <MenuItem value="priceDesc">価格が高い順</MenuItem>
           </Select>
         </FormControl>
+
+        <div className="text-sm text-gray-600">
+          {`全${totalPages}ページ中 ${page + 1}ページ目`}
+        </div>
       </div>
 
       {/* Pizza Items Grid */}
@@ -108,6 +134,16 @@ export function ItemPage() {
             </div>
           </div>
         ))}
+      </div>
+
+      <div className="mt-8 flex justify-center">
+        <Pagination
+          color="primary"
+          size="large"
+          count={totalPages}
+          page={page + 1}
+          onChange={handlePageChange}
+        />
       </div>
     </div>
   );
