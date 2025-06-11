@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { CustomLink } from "../../components/CustomLink";
 import { axiosInstance } from "../../lib/axiosInstance";
 import type { Item } from "./types/itemType";
@@ -12,30 +12,51 @@ import {
 
 export function ItemPage() {
   const [items, setItems] = useState<Item[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchKeyword, setSearchKeyword] = useState("");
   const [sort, setSort] = useState<"priceAsc" | "priceDesc">("priceAsc");
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
 
-  useEffect(() => {
-    const fetchItems = async () => {
-      try {
-        const response = await axiosInstance.get(
-          `/items?sort=${sort}&page=${page}&size=9`,
-        );
-        console.log(response.data);
-        setItems(response.data.content);
-        setTotalPages(response.data.totalPages);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    fetchItems();
-  }, [sort, page]);
+  /**
+   * アイテムを取得する
+   * searchKeyword, sort, pageが変更されたらアイテムを取得する
+   */
+  const fetchItems = useCallback(async () => {
+    try {
+      const response = await axiosInstance.get(
+        `/items?sort=${sort}&page=${page}&size=9&keyword=${searchKeyword}`,
+      );
+      setItems(response.data.content);
+      setTotalPages(response.data.totalPages);
+    } catch (error) {
+      console.error(error);
+    }
+  }, [searchKeyword, sort, page]);
 
-  const handleSearch = (e: React.FormEvent) => {
+  useEffect(() => {
+    fetchItems();
+  }, [fetchItems]);
+
+  /**
+   * 検索フォームの検索ボタンクリックイベント
+   *
+   * @param e イベント
+   */
+  const handleSearch = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // TODO: Implement search logic
+    setPage(0); // 検索時にページをリセット(ページを遷移した先で検索をするとバグるため)
+  };
+
+  /**
+   * 検索フォームのキーワード変更イベント
+   *
+   * @param e イベント
+   */
+  const handleSearchKeywordChange = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    setSearchKeyword(e.target.value);
+    setPage(0);
   };
 
   /**
@@ -46,6 +67,14 @@ export function ItemPage() {
    */
   const handlePageChange = (_: React.ChangeEvent<unknown>, value: number) => {
     setPage(value - 1); // ページ番号は0から始まるため1を引く
+  };
+
+  /**
+   * 検索フォームのクリアボタンクリックイベント
+   */
+  const handleClear = () => {
+    setSearchKeyword("");
+    setPage(0);
   };
 
   return (
@@ -59,18 +88,20 @@ export function ItemPage() {
             type="text"
             className="flex-1 border border-gray-300 rounded px-3 py-2 text-sm"
             placeholder="商品名"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            value={searchKeyword}
+            onChange={handleSearchKeywordChange}
           />
+
           <button
             type="submit"
             className="bg-blue-600 text-white px-4 py-2 rounded text-sm hover:bg-blue-700"
           >
             検索
           </button>
+
           <button
-            type="reset"
-            onClick={() => setSearchTerm("")}
+            type="button"
+            onClick={handleClear}
             className="border border-gray-300 text-gray-700 px-4 py-2 rounded text-sm hover:bg-gray-100"
           >
             クリア
@@ -101,7 +132,15 @@ export function ItemPage() {
         </div>
       </div>
 
-      {/* Pizza Items Grid */}
+      {/* アイテムが0件の場合 */}
+      {items.length === 0 && (
+        <div className="text-center py-12 text-gray-600">
+          <p className="text-lg mb-2">検索結果が見つかりませんでした</p>
+          <p className="text-sm">検索条件を変更して、もう一度お試しください</p>
+        </div>
+      )}
+
+      {/* アイテムが1件以上の場合 */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
         {items.map((item) => (
           <div
@@ -129,22 +168,24 @@ export function ItemPage() {
                   {item.itemName}
                 </CustomLink>
               </h3>
-              <p className="text-sm text-gray-600">M: {item.itemPriceM}</p>
-              <p className="text-sm text-gray-600">L: {item.itemPriceL}</p>
+              <p className="text-sm text-gray-600">{`M: ${item.itemPriceM}円`}</p>
+              <p className="text-sm text-gray-600">{`L: ${item.itemPriceL}円`}</p>
             </div>
           </div>
         ))}
       </div>
 
-      <div className="mt-8 flex justify-center">
-        <Pagination
-          color="primary"
-          size="large"
-          count={totalPages}
-          page={page + 1}
-          onChange={handlePageChange}
-        />
-      </div>
+      {totalPages >= 1 && (
+        <div className="mt-8 flex justify-center">
+          <Pagination
+            color="primary"
+            size="large"
+            count={totalPages}
+            page={page + 1}
+            onChange={handlePageChange}
+          />
+        </div>
+      )}
     </div>
   );
 }

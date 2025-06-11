@@ -1,9 +1,13 @@
 package com.example.ec.site.playground.repository;
 
 import com.example.ec.site.playground.model.Item;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 /** アイテム情報を操作するリポジトリ. */
 @Repository
-public interface ItemRepository extends JpaRepository<Item, Integer> {}
+public interface ItemRepository extends JpaRepository<Item, Integer> {
+  Page<Item> findByItemNameContainingIgnoreCase(String keyword, Pageable pageable);
+}

@@ -39,13 +39,15 @@ public class ItemController {
    * @param sort ソートの順序（priceAsc, priceDesc）
    * @param page ページ番号
    * @param size 1ページあたりのアイテム数
+   * @param keyword 検索キーワード
    * @return ページネーションされたアイテムのリスト
    */
   @GetMapping
   public ResponseEntity<?> getItems(
       @RequestParam(defaultValue = "priceAsc") String sort,
       @RequestParam(defaultValue = "0") Integer page,
-      @RequestParam(defaultValue = "10") Integer size) {
+      @RequestParam(defaultValue = "10") Integer size,
+      @RequestParam(defaultValue = "") String keyword) {
     Sort sorting =
         switch (sort) {
           case "priceDesc" -> Sort.by(Sort.Direction.DESC, "itemPriceM");
@@ -53,7 +55,7 @@ public class ItemController {
           default -> Sort.by("itemId");
         };
     Pageable pageable = PageRequest.of(page, size, sorting);
-    return ResponseEntity.ok(itemService.findItems(pageable));
+    return ResponseEntity.ok(itemService.findItems(keyword, pageable));
   }
 
   /**

@@ -28,11 +28,16 @@ public class ItemService {
   /**
    * ページネーション、ソートされたアイテムのリストを取得するメソッド.
    *
+   * @param keyword 検索キーワード
    * @param pageable ページ情報
    * @return ページネーションされたアイテムのリスト
    */
-  public Page<Item> findItems(Pageable pageable) {
-    return itemRepository.findAll(pageable);
+  public Page<Item> findItems(String keyword, Pageable pageable) {
+    // キーワードがnullまたは空文字の場合、全件取得
+    if (keyword == null || keyword.isBlank()) {
+      return itemRepository.findAll(pageable);
+    }
+    return itemRepository.findByItemNameContainingIgnoreCase(keyword, pageable);
   }
 
   /**
