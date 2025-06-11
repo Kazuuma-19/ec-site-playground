@@ -11,6 +11,9 @@ import jakarta.servlet.http.HttpSession;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,15 +34,26 @@ public class ItemController {
   private final ToppingService toppingService;
 
   /**
-   * アイテムを価格でソートして取得する.
+   * ページネーション、ソートされたアイテムのリストを取得する.
    *
    * @param sort ソートの順序（priceAsc, priceDesc）
-   * @return ソートされたアイテムのリスト
+   * @param page ページ番号
+   * @param size 1ページあたりのアイテム数
+   * @return ページネーションされたアイテムのリスト
    */
   @GetMapping
-  public ResponseEntity<?> getSortedItems(@RequestParam(defaultValue = "priceAsc") String sort) {
-    List<Item> items = itemService.findItemsSortedByPrice(sort);
-    return ResponseEntity.ok(items);
+  public ResponseEntity<?> getItems(
+      @RequestParam(defaultValue = "priceAsc") String sort,
+      @RequestParam(defaultValue = "0") Integer page,
+      @RequestParam(defaultValue = "10") Integer size) {
+    Sort sorting =
+        switch (sort) {
+          case "priceDesc" -> Sort.by(Sort.Direction.DESC, "itemPriceM");
+          case "priceAsc" -> Sort.by(Sort.Direction.ASC, "itemPriceM");
+          default -> Sort.by("itemId");
+        };
+    Pageable pageable = PageRequest.of(page, size, sorting);
+    return ResponseEntity.ok(itemService.findItems(pageable));
   }
 
   /**
