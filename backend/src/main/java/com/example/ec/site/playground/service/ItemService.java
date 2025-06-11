@@ -5,6 +5,7 @@ import com.example.ec.site.playground.repository.ItemRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -38,6 +39,23 @@ public class ItemService {
       return itemRepository.findAll(pageable);
     }
     return itemRepository.findByItemNameContainingIgnoreCase(keyword, pageable);
+  }
+
+  /**
+   * アイテム名のサジェストを取得するメソッド.
+   *
+   * @param keyword 検索キーワード
+   * @param limit サジェストの最大数
+   * @return アイテム名のサジェストリスト
+   */
+  public List<String> getItemNameSuggestions(String keyword, Integer limit) {
+    if (keyword == null || keyword.isBlank()) {
+      return List.of();
+    }
+    return itemRepository
+        .findByItemNameContainingIgnoreCase(keyword, PageRequest.of(0, limit))
+        .map(Item::getItemName)
+        .toList();
   }
 
   /**

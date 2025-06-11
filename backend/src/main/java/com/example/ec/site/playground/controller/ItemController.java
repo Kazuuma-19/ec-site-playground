@@ -59,6 +59,20 @@ public class ItemController {
   }
 
   /**
+   * アイテム名のサジェストを取得する.
+   *
+   * @param keyword 検索キーワード
+   * @param limit サジェストの最大数
+   * @return アイテム名のサジェストリスト
+   */
+  @GetMapping("/autocomplete")
+  public ResponseEntity<?> getItemNameSuggestions(
+      @RequestParam String keyword, @RequestParam(defaultValue = "10") Integer limit) {
+    List<String> suggestions = itemService.getItemNameSuggestions(keyword, limit);
+    return ResponseEntity.ok(suggestions);
+  }
+
+  /**
    * アイテム詳細を取得する.
    *
    * @param itemId アイテムID
