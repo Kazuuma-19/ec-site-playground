@@ -51,19 +51,19 @@ const getPaymentMethodLabel = (method: number) => {
 };
 
 export function OrderHistoryPage() {
-  const [orders, setOrders] = useState<Order[]>([]);
+  //   const [orders, setOrders] = useState<Order[]>([]);
 
-  useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        const response = await axiosInstance.get("/orders");
-        setOrders(response.data);
-      } catch (error) {
-        console.error("注文履歴の取得に失敗しました", error);
-      }
-    };
-    fetchOrders();
-  }, []);
+  //   useEffect(() => {
+  //     const fetchOrders = async () => {
+  //       try {
+  //         const response = await axiosInstance.get("/orders");
+  //         setOrders(response.data);
+  //       } catch (error) {
+  //         console.error("注文履歴の取得に失敗しました", error);
+  //       }
+  //     };
+  //     fetchOrders();
+  //   }, []);
 
   return (
     <div className="container mx-auto px-4 py-8">
