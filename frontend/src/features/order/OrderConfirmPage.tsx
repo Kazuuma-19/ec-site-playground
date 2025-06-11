@@ -15,9 +15,16 @@ import {
   Typography,
 } from "@mui/material";
 import { useNavigate } from "@tanstack/react-router";
+import { Container } from "@mui/material";
+import { useTotalPrice } from "../cart/hooks/useTotalPrice";
+import { useCartItem } from "../cart/hooks/useCartItem";
 
 export function OrderConfirmPage() {
+  const { cartItems } = useCartItem();
+  const { totalPrice, totalTax } = useTotalPrice(cartItems);
+
   const navigate = useNavigate();
+
   const handleOrder = () => {
     navigate({
       to: "/order/finished",
@@ -26,8 +33,8 @@ export function OrderConfirmPage() {
   };
 
   return (
-    <div className="container mx-auto p-4">
-      <Typography variant="h5" align="center" gutterBottom>
+    <Container sx={{ my: 5 }}>
+      <Typography variant="h4" align="center" mb={3}>
         注文内容確認
       </Typography>
 
@@ -42,23 +49,32 @@ export function OrderConfirmPage() {
         </TableHead>
 
         <TableBody>
-          {[1, 2, 3].map((item) => (
-            <TableRow key={item}>
+          {cartItems.map((item) => (
+            <TableRow key={item.itemId}>
               <TableCell>
                 <div className="flex flex-col items-center">
-                  <img src="/1.jpg" width={100} alt="pizza" />
-                  じゃがバターベーコン
+                  <img src={item.imagePath} width={100} alt="pizza" />
+                  {item.itemName}
                 </div>
               </TableCell>
-              <TableCell>Ｌ 2,380円 1個</TableCell>
-              <TableCell>
+
+              <TableCell align="center">
+                {`${item.size} ${item.itemPrice.toLocaleString()}円 ${item.quantity}個`}
+              </TableCell>
+
+              <TableCell align="center">
                 <ul>
-                  <li>ピーマン300円</li>
-                  <li>オニオン300円</li>
-                  <li>あらびきソーセージ300円</li>
+                  {item.toppingList?.map((topping) => (
+                    <li key={topping.toppingId}>
+                      {`${topping.toppingName} ${topping.toppingPrice.toLocaleString()}円`}
+                    </li>
+                  ))}
                 </ul>
               </TableCell>
-              <TableCell align="center">3,280円</TableCell>
+
+              <TableCell align="center">
+                {`${item.subtotalPrice.toLocaleString()}円`}
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>
@@ -66,8 +82,10 @@ export function OrderConfirmPage() {
 
       {/* 合計金額 */}
       <div className="text-center mb-8">
-        <p className="text-lg">消費税：8,000円</p>
-        <p className="text-xl font-bold">ご注文金額合計：38,000円 (税込)</p>
+        <p className="text-lg">消費税：{totalTax.toLocaleString()}円</p>
+        <p className="text-xl font-bold">
+          ご注文金額合計：{totalPrice.toLocaleString()}円 (税込)
+        </p>
       </div>
 
       {/* お届け先情報 */}
@@ -160,6 +178,6 @@ export function OrderConfirmPage() {
           この内容で注文する
         </Button>
       </div>
-    </div>
+    </Container>
   );
 }

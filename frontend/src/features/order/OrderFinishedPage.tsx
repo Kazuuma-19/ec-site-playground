@@ -6,7 +6,7 @@ export function OrderFinishedPage() {
 
   const handleGoHome = () => {
     navigate({
-      to: "/",
+      to: "/item",
       replace: true, // 戻るボタンで戻れないようにする
     });
   };
