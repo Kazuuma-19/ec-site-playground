@@ -20,6 +20,7 @@ import { useTotalPrice } from "../cart/hooks/useTotalPrice";
 import { useCartItem } from "../cart/hooks/useCartItem";
 import { axiosInstance } from "../../lib/axiosInstance";
 import { useState } from "react";
+import { Controller, useForm } from "react-hook-form";
 
 type OrderForm = {
   destinationName: string;
@@ -52,22 +53,29 @@ const deliveryTimeOptions = [
 export function OrderConfirmPage() {
   const { cartItems } = useCartItem();
   const { totalPrice, totalTax } = useTotalPrice(cartItems);
-  const [orderForm, setOrderForm] = useState<OrderForm>({
-    destinationName: "",
-    destinationEmail: "",
-    destinationZipcode: "",
-    destinationAddress: "",
-    destinationTelephone: "",
-    deliveryTime: new Date().toISOString().split("T")[0],
-    paymentMethod: 0,
-  });
-
   const navigate = useNavigate();
 
-  const handleOrder = async () => {
+  const {
+    register,
+    handleSubmit,
+    control,
+    formState: { errors },
+  } = useForm<OrderForm>({
+    defaultValues: {
+      destinationName: "",
+      destinationEmail: "",
+      destinationZipcode: "",
+      destinationAddress: "",
+      destinationTelephone: "",
+      deliveryTime: new Date().toISOString().split("T")[0],
+      paymentMethod: 0,
+    },
+  });
+
+  const onSubmit = async (data: OrderForm) => {
     const orderRequest: OrderRequest = {
-      ...orderForm,
-      deliveryTime: `${orderForm.deliveryTime} 10:00:00`,
+      ...data,
+      deliveryTime: `${data.deliveryTime} 10:00:00`,
       totalPrice,
       destinationPrefecture: "東京都",
       destinationMunicipalities: "新宿区",
@@ -82,10 +90,6 @@ export function OrderConfirmPage() {
     } catch (error) {
       console.error(error);
     }
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setOrderForm({ ...orderForm, [e.target.name]: e.target.value });
   };
 
   return (
@@ -145,122 +149,137 @@ export function OrderConfirmPage() {
       </div>
 
       {/* お届け先情報 */}
-      <Card className="mb-8 max-w-2xl mx-auto">
-        <CardContent>
-          <Typography variant="h6" align="center" gutterBottom>
-            お届け先情報
-          </Typography>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <Card className="mb-8 max-w-2xl mx-auto">
+          <CardContent>
+            <Typography variant="h6" align="center" gutterBottom>
+              お届け先情報
+            </Typography>
 
-          <form className="space-y-4">
-            <div>
-              <FormLabel>名前</FormLabel>
-              <TextField
-                fullWidth
-                label="お名前"
-                name="destinationName"
-                value={orderForm.destinationName}
-                onChange={handleChange}
-              />
-            </div>
-
-            <div>
-              <FormLabel>メールアドレス</FormLabel>
-              <TextField
-                fullWidth
-                label="メールアドレス"
-                name="destinationEmail"
-                value={orderForm.destinationEmail}
-                onChange={handleChange}
-              />
-            </div>
-
-            <div>
-              <FormLabel>郵便番号</FormLabel>
-              <div className="flex items-center gap-2">
+            <form className="space-y-4">
+              <div>
+                {/* <FormLabel>名前</FormLabel> */}
                 <TextField
-                  label="郵便番号"
-                  name="destinationZipcode"
-                  value={orderForm.destinationZipcode}
-                  onChange={handleChange}
+                  fullWidth
+                  label="お名前"
+                  {...register("destinationName", {
+                    required: "名前は必須です",
+                  })}
+                  error={!!errors.destinationName}
+                  helperText={errors.destinationName?.message}
                 />
-                <Button variant="outlined">住所検索</Button>
               </div>
-            </div>
 
-            <div>
-              <FormLabel>住所</FormLabel>
-              <TextField
-                fullWidth
-                label="住所"
-                name="destinationAddress"
-                value={orderForm.destinationAddress}
-                onChange={handleChange}
-              />
-            </div>
+              <div>
+                <FormLabel>メールアドレス</FormLabel>
+                <TextField
+                  fullWidth
+                  label="メールアドレス"
+                  {...register("destinationEmail", {
+                    required: "メールアドレスは必須です",
+                  })}
+                  error={!!errors.destinationEmail}
+                  helperText={errors.destinationEmail?.message}
+                />
+              </div>
 
-            <div>
-              <FormLabel>電話番号</FormLabel>
-              <TextField
-                fullWidth
-                label="電話番号"
-                name="destinationTelephone"
-                value={orderForm.destinationTelephone}
-                onChange={handleChange}
-              />
-            </div>
-
-            <div>
-              <FormLabel>配達日</FormLabel>
-              <input
-                type="date"
-                className="border rounded p-2 w-full"
-                name="deliveryTime"
-                value={orderForm.deliveryTime}
-                onChange={handleChange}
-              />
-              <RadioGroup row defaultValue="10時">
-                {deliveryTimeOptions.map((time) => (
-                  <FormControlLabel
-                    key={time}
-                    value={time}
-                    control={<Radio />}
-                    label={time}
+              <div>
+                <FormLabel>郵便番号</FormLabel>
+                <div className="flex items-center gap-2">
+                  <TextField
+                    label="郵便番号"
+                    {...register("destinationZipcode", {
+                      required: "郵便番号は必須です",
+                    })}
+                    error={!!errors.destinationZipcode}
+                    helperText={errors.destinationZipcode?.message}
                   />
-                ))}
-              </RadioGroup>
-            </div>
-          </form>
-        </CardContent>
-      </Card>
+                  <Button variant="outlined">住所検索</Button>
+                </div>
+              </div>
 
-      {/* お支払い方法 */}
-      <Card className="mb-8 max-w-2xl mx-auto">
-        <CardContent>
-          <Typography variant="h6" align="center" gutterBottom>
-            お支払い方法
-          </Typography>
+              <div>
+                <FormLabel>住所</FormLabel>
+                <TextField
+                  fullWidth
+                  label="住所"
+                  {...register("destinationAddress", {
+                    required: "住所は必須です",
+                  })}
+                  error={!!errors.destinationAddress}
+                  helperText={errors.destinationAddress?.message}
+                />
+              </div>
 
-          <RadioGroup
-            defaultValue="代金引換"
-            name="paymentMethod"
-            value={orderForm.paymentMethod}
-            onChange={handleChange}
-          >
-            <FormControlLabel value={0} control={<Radio />} label="代金引換" />
-            <FormControlLabel
-              value={1}
-              control={<Radio />}
-              label="クレジットカード"
+              <div>
+                <FormLabel>電話番号</FormLabel>
+                <TextField
+                  fullWidth
+                  label="電話番号"
+                  {...register("destinationTelephone", {
+                    required: "電話番号は必須です",
+                  })}
+                  error={!!errors.destinationTelephone}
+                  helperText={errors.destinationTelephone?.message}
+                />
+              </div>
+
+              <div>
+                <FormLabel>配達日</FormLabel>
+                <input
+                  type="date"
+                  className="border rounded p-2 w-full"
+                  {...register("deliveryTime", { required: true })}
+                />
+                <RadioGroup row defaultValue="10時">
+                  {deliveryTimeOptions.map((time) => (
+                    <FormControlLabel
+                      key={time}
+                      value={time}
+                      control={<Radio />}
+                      label={time}
+                    />
+                  ))}
+                </RadioGroup>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
+
+        {/* お支払い方法 */}
+        <Card className="mb-8 max-w-2xl mx-auto">
+          <CardContent>
+            <Typography variant="h6" align="center" gutterBottom>
+              お支払い方法
+            </Typography>
+
+            <Controller
+              name="paymentMethod"
+              control={control}
+              render={({ field }) => (
+                <RadioGroup {...field} row>
+                  <FormControlLabel
+                    value={0}
+                    control={<Radio />}
+                    label="代金引換"
+                  />
+                  <FormControlLabel
+                    value={1}
+                    control={<Radio />}
+                    label="クレジットカード"
+                  />
+                </RadioGroup>
+              )}
             />
-          </RadioGroup>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
 
-      <div className="text-center">
-        <Button variant="contained" color="warning" onClick={handleOrder}>
-          この内容で注文する
-        </Button>
-      </div>
+        <div className="text-center">
+          <Button variant="contained" color="warning" type="submit">
+            この内容で注文する
+          </Button>
+        </div>
+      </form>
     </Container>
   );
 }
