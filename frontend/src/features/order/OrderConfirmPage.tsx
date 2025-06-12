@@ -24,17 +24,9 @@ import { Controller, useForm } from "react-hook-form";
 import { DateCalendar } from "@mui/x-date-pickers/DateCalendar";
 import dayjs from "dayjs";
 import { searchAddress } from "../../api/searchAddress";
-
-type OrderForm = {
-  destinationName: string;
-  destinationEmail: string;
-  destinationZipcode: string;
-  destinationAddress: string;
-  destinationTelephone: string;
-  deliveryDate: string;
-  deliveryTime: string;
-  paymentMethod: number;
-};
+import { orderFormSchema } from "./schema/orderFormSchema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import type { OrderForm } from "./schema/orderFormSchema";
 
 type OrderRequest = OrderForm & {
   destinationPrefecture: string;
@@ -85,6 +77,7 @@ export function OrderConfirmPage() {
     getValues,
     setValue,
   } = useForm<OrderForm>({
+    resolver: zodResolver(orderFormSchema),
     defaultValues: {
       destinationName: "",
       destinationEmail: "",
