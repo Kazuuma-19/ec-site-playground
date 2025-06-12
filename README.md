@@ -6,13 +6,14 @@
 ```bash
 CREATE DATABASE ec_site_playground;
 ```
+- パッケージをインストール(プロジェクト直下)
+```bash
+make ready
+```
 ### 2. サーバー起動
 #### React起動
 ```bash
 cd frontend
-```
-```bash
-npm init
 ```
 ```bash
 npm run dev
