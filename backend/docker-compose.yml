@@ -1,0 +1,25 @@
+services:
+  app:
+    build:
+      context: .
+    image: ec-site-playground:latest # Image name
+    container_name: ec-site-playground-app
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+
+  db:
+    image: postgres:17
+    container_name: ec-site-playground-postgres
+    environment:
+      POSTGRES_DB: ec_site_playground
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data # postgres official directory
+
+volumes:
+  db-data:
