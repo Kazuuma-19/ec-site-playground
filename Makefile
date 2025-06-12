@@ -23,3 +23,26 @@ front-check:
 
 back-check:
 	cd backend && ./gradlew checkstyleMain
+
+# テストを除いてビルド
+build:
+	cd backend && ./gradlew build -x test
+
+# imageをビルドしてコンテナを起動
+up:
+	cd backend && docker compose up --build
+
+build-up:
+	make build
+	make up
+
+down:
+	cd backend && docker compose down
+
+# dockerのvolume(DBのデータ)も削除
+down-v:
+	cd backend && docker compose down -v
+
+# postgreSQL操作
+psql:
+	cd backend && docker compose exec db psql -U postgres -d ec_site_playground
