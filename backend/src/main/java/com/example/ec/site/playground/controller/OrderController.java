@@ -42,6 +42,7 @@ public class OrderController {
     }
     User user = userService.getUserById(userId);
 
+    System.out.println(orderRequest.getDeliveryDateTime());
     Order order = new Order();
     order.setStatus(0);
     order.setTotalPrice(orderRequest.getTotalPrice());
@@ -53,7 +54,7 @@ public class OrderController {
     order.setDestinationMunicipalities(orderRequest.getDestinationMunicipalities());
     order.setDestinationAddress(orderRequest.getDestinationAddress());
     order.setDestinationTelephone(orderRequest.getDestinationTelephone());
-    order.setDeliveryTime(parseStringToZonedDateTime(orderRequest.getDeliveryTime()));
+    order.setDeliveryDateTime(parseStringToZonedDateTime(orderRequest.getDeliveryDateTime()));
     order.setPaymentMethod(orderRequest.getPaymentMethod());
     order.setUserId(user);
 

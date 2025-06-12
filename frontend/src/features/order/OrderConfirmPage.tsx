@@ -21,6 +21,9 @@ import { useCartItem } from "../cart/hooks/useCartItem";
 import { axiosInstance } from "../../lib/axiosInstance";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { DateCalendar } from "@mui/x-date-pickers/DateCalendar";
+import dayjs from "dayjs";
+import { searchAddress } from "../../api/searchAddress";
 
 type OrderForm = {
   destinationName: string;
@@ -28,6 +31,7 @@ type OrderForm = {
   destinationZipcode: string;
   destinationAddress: string;
   destinationTelephone: string;
+  deliveryDate: string;
   deliveryTime: string;
   paymentMethod: number;
 };
@@ -35,6 +39,7 @@ type OrderForm = {
 type OrderRequest = OrderForm & {
   destinationPrefecture: string;
   destinationMunicipalities: string;
+  deliveryDateTime: string;
   totalPrice: number;
 };
 
@@ -50,9 +55,26 @@ const deliveryTimeOptions = [
   "18時",
 ];
 
+const hourMap: Record<string, string> = {
+  "10時": "10:00:00",
+  "11時": "11:00:00",
+  "12時": "12:00:00",
+  "13時": "13:00:00",
+  "14時": "14:00:00",
+  "15時": "15:00:00",
+  "16時": "16:00:00",
+  "17時": "17:00:00",
+  "18時": "18:00:00",
+};
+
 export function OrderConfirmPage() {
   const { cartItems } = useCartItem();
   const { totalPrice, totalTax } = useTotalPrice(cartItems);
+  const Today = new Date();
+  const [date, setDate] = useState(Today);
+  const [destinationPrefecture, setDestinationPrefecture] = useState("");
+  const [destinationMunicipalities, setDestinationMunicipalities] =
+    useState("");
   const navigate = useNavigate();
 
   const {
@@ -60,6 +82,8 @@ export function OrderConfirmPage() {
     handleSubmit,
     control,
     formState: { errors },
+    getValues,
+    setValue,
   } = useForm<OrderForm>({
     defaultValues: {
       destinationName: "",
@@ -67,18 +91,22 @@ export function OrderConfirmPage() {
       destinationZipcode: "",
       destinationAddress: "",
       destinationTelephone: "",
-      deliveryTime: new Date().toISOString().split("T")[0],
+      deliveryDate: new Date().toISOString().split("T")[0],
+      deliveryTime: "10時",
       paymentMethod: 0,
     },
   });
 
   const onSubmit = async (data: OrderForm) => {
+    const deliveryDateTime = `${data.deliveryDate} ${hourMap[data.deliveryTime]}`;
+    console.log(deliveryDateTime);
     const orderRequest: OrderRequest = {
       ...data,
-      deliveryTime: `${data.deliveryTime} 10:00:00`,
+      destinationZipcode: `${data.destinationZipcode.replace("-", "").trim()}`,
+      deliveryDateTime: `${data.deliveryDate} ${hourMap[data.deliveryTime]}`,
       totalPrice,
-      destinationPrefecture: "東京都",
-      destinationMunicipalities: "新宿区",
+      destinationPrefecture: `${destinationPrefecture}`,
+      destinationMunicipalities: `${destinationMunicipalities}`,
     };
 
     try {
@@ -89,6 +117,21 @@ export function OrderConfirmPage() {
       });
     } catch (error) {
       console.error(error);
+    }
+  };
+
+  const handleSearchAddress = async () => {
+    const currentZipcode = getValues("destinationZipcode");
+    console.log(currentZipcode);
+    if (!currentZipcode) return;
+
+    const address = await searchAddress(currentZipcode);
+    if (address) {
+      setValue("destinationAddress", address[0] + address[1] + address[2]);
+      setDestinationPrefecture(address[0]);
+      setDestinationMunicipalities(address[1]);
+    } else {
+      alert("住所が見つかりませんでした");
     }
   };
 
@@ -156,17 +199,17 @@ export function OrderConfirmPage() {
               お届け先情報
             </Typography>
 
-            <form className="space-y-4">
+            <div className="space-y-4">
               <div>
-                {/* <FormLabel>名前</FormLabel> */}
+                <FormLabel>お名前</FormLabel>
                 <TextField
                   fullWidth
-                  label="お名前"
                   {...register("destinationName", {
                     required: "名前は必須です",
                   })}
                   error={!!errors.destinationName}
                   helperText={errors.destinationName?.message}
+                  placeholder="ラクス太郎"
                 />
               </div>
 
@@ -174,27 +217,29 @@ export function OrderConfirmPage() {
                 <FormLabel>メールアドレス</FormLabel>
                 <TextField
                   fullWidth
-                  label="メールアドレス"
                   {...register("destinationEmail", {
                     required: "メールアドレスは必須です",
                   })}
                   error={!!errors.destinationEmail}
                   helperText={errors.destinationEmail?.message}
+                  placeholder="sample@rakus.com"
                 />
               </div>
 
               <div>
-                <FormLabel>郵便番号</FormLabel>
                 <div className="flex items-center gap-2">
+                  <FormLabel>郵便番号</FormLabel>
                   <TextField
-                    label="郵便番号"
                     {...register("destinationZipcode", {
                       required: "郵便番号は必須です",
                     })}
                     error={!!errors.destinationZipcode}
                     helperText={errors.destinationZipcode?.message}
+                    placeholder="123-4567"
                   />
-                  <Button variant="outlined">住所検索</Button>
+                  <Button variant="outlined" onClick={handleSearchAddress}>
+                    住所検索
+                  </Button>
                 </div>
               </div>
 
@@ -202,12 +247,12 @@ export function OrderConfirmPage() {
                 <FormLabel>住所</FormLabel>
                 <TextField
                   fullWidth
-                  label="住所"
                   {...register("destinationAddress", {
                     required: "住所は必須です",
                   })}
                   error={!!errors.destinationAddress}
                   helperText={errors.destinationAddress?.message}
+                  placeholder="東京都渋谷区千駄ヶ谷5-27-5 リンクスクエア新宿7階"
                 />
               </div>
 
@@ -215,34 +260,60 @@ export function OrderConfirmPage() {
                 <FormLabel>電話番号</FormLabel>
                 <TextField
                   fullWidth
-                  label="電話番号"
                   {...register("destinationTelephone", {
                     required: "電話番号は必須です",
                   })}
                   error={!!errors.destinationTelephone}
                   helperText={errors.destinationTelephone?.message}
+                  placeholder="050-8880-3200"
                 />
               </div>
 
               <div>
                 <FormLabel>配達日</FormLabel>
-                <input
-                  type="date"
-                  className="border rounded p-2 w-full"
-                  {...register("deliveryTime", { required: true })}
+                <Controller
+                  name="deliveryDate"
+                  control={control}
+                  render={({ field }) => (
+                    <>
+                      <DateCalendar
+                        value={dayjs(field.value)}
+                        onChange={(date) => {
+                          const formatted = date
+                            ? date.format("YYYY-MM-DD")
+                            : "";
+                          field.onChange(formatted);
+                          setDate(date?.toDate() || Today);
+                        }}
+                        minDate={dayjs()}
+                        maxDate={dayjs().add(30, "day")}
+                      />
+                      {errors.deliveryDate && (
+                        <Typography color="error" fontSize={12}>
+                          {errors.deliveryDate.message}
+                        </Typography>
+                      )}
+                    </>
+                  )}
                 />
-                <RadioGroup row defaultValue="10時">
-                  {deliveryTimeOptions.map((time) => (
-                    <FormControlLabel
-                      key={time}
-                      value={time}
-                      control={<Radio />}
-                      label={time}
-                    />
-                  ))}
-                </RadioGroup>
+                <Controller
+                  name="deliveryTime"
+                  control={control}
+                  render={({ field }) => (
+                    <RadioGroup {...field} row>
+                      {deliveryTimeOptions.map((time) => (
+                        <FormControlLabel
+                          key={time}
+                          value={time}
+                          control={<Radio />}
+                          label={time}
+                        />
+                      ))}
+                    </RadioGroup>
+                  )}
+                />
               </div>
-            </form>
+            </div>
           </CardContent>
         </Card>
 

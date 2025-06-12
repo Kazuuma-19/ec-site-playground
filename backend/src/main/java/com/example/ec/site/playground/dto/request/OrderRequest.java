@@ -17,6 +17,6 @@ public class OrderRequest {
   String destinationMunicipalities;
   String destinationAddress;
   String destinationTelephone;
-  String deliveryTime;
+  String deliveryDateTime;
   Integer paymentMethod; // 1: 代金引換, 2: クレジットカード
 }
