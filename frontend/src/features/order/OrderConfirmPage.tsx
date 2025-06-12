@@ -98,8 +98,6 @@ export function OrderConfirmPage() {
   });
 
   const onSubmit = async (data: OrderForm) => {
-    const deliveryDateTime = `${data.deliveryDate} ${hourMap[data.deliveryTime]}`;
-    console.log(deliveryDateTime);
     const orderRequest: OrderRequest = {
       ...data,
       destinationZipcode: `${data.destinationZipcode.replace("-", "").trim()}`,
