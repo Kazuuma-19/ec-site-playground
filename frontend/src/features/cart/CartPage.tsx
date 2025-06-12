@@ -45,11 +45,11 @@ export function CartPage() {
   /**
    * カートから商品を削除する
    *
-   * @param itemId 削除する商品のID
+   * @param itemIndex 削除する商品のインデックス
    */
-  const handleDelete = async (itemId: string) => {
+  const handleDelete = async (itemIndex: number) => {
     try {
-      await axiosInstance.delete(`items/cart/${itemId}`);
+      await axiosInstance.delete(`items/cart/${itemIndex}`);
       fetchCart();
     } catch (error) {
       console.error(error);
@@ -75,7 +75,7 @@ export function CartPage() {
           </TableHead>
 
           <TableBody>
-            {cartItems.map((item) => (
+            {cartItems.map((item, itemIndex) => (
               <TableRow key={item.itemId}>
                 <TableCell>
                   <Box textAlign="center">
@@ -116,7 +116,7 @@ export function CartPage() {
                   <Button
                     variant="contained"
                     color="primary"
-                    onClick={() => handleDelete(item.itemId)}
+                    onClick={() => handleDelete(itemIndex)}
                   >
                     削除
                   </Button>

@@ -147,18 +147,24 @@ public class ItemController {
   /**
    * カートからアイテムを削除する.
    *
-   * @param itemId アイテムID
+   * @param itemIndex アイテムのインデックス
    * @param session HTTPセッション
    * @return カートからアイテムを削除した結果
    */
-  @DeleteMapping("/cart/{itemId}")
-  public ResponseEntity<?> removeItemFromCart(@PathVariable Integer itemId, HttpSession session) {
+  @DeleteMapping("/cart/{itemIndex}")
+  public ResponseEntity<?> removeItemFromCart(
+      @PathVariable Integer itemIndex, HttpSession session) {
     List<AddCartRequest> cartItems =
         (List<AddCartRequest>) session.getAttribute(CART_ITEMS_SESSION);
-    if (cartItems != null) {
-      cartItems.removeIf(item -> item.getItemId().equals(itemId));
-      session.setAttribute(CART_ITEMS_SESSION, cartItems);
+
+    // 無効なインデックスの場合は400エラー
+    if (cartItems == null || itemIndex < 0 || cartItems.size() <= itemIndex) {
+      return ResponseEntity.badRequest().build();
     }
+
+    cartItems.remove((int) itemIndex);
+    session.setAttribute(CART_ITEMS_SESSION, cartItems);
+
     return ResponseEntity.noContent().build();
   }
 
