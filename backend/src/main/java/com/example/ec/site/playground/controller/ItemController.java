@@ -108,7 +108,18 @@ public class ItemController {
     if (cartItems == null) {
       cartItems = new ArrayList<>();
     }
-    // カートにアイテムを追加
+
+    for (AddCartRequest item : cartItems) {
+      boolean isSameItem = isSameItemWithToppings(item, request);
+      if (isSameItem) {
+        // 同じアイテムが存在する場合は数量、小計を更新
+        item.setQuantity(item.getQuantity() + request.getQuantity());
+        item.setSubtotalPrice(item.getSubtotalPrice() + request.getSubtotalPrice());
+        return ResponseEntity.ok().build();
+      }
+    }
+
+    // カートに同じアイテムが存在しない場合は新規追加し、セッションを更新
     cartItems.add(request);
     session.setAttribute(CART_ITEMS_SESSION, cartItems);
     return ResponseEntity.ok().build();
@@ -163,5 +174,28 @@ public class ItemController {
       toppingResponseList.add(toppingResponse);
     }
     return toppingResponseList;
+  }
+
+  /**
+   * アイテムとリクエストのアイテムが同じかどうかを確認する. アイテムIDとサイズが一致し、トッピングも一致する場合は同じアイテムとみなす.
+   *
+   * @param item カート内のアイテム
+   * @param request リクエストのアイテム
+   * @return 同じアイテムであればtrue、そうでなければfalse
+   */
+  private boolean isSameItemWithToppings(AddCartRequest item, AddCartRequest request) {
+    // アイテムIDとサイズが一致するか確認
+    if (!item.getItemId().equals(request.getItemId())
+        || !item.getSize().equals(request.getSize())) {
+      return false;
+    }
+
+    // トッピングが一致するか確認
+    for (Integer toppingId : request.getToppingIdList()) {
+      if (!item.getToppingIdList().contains(toppingId)) {
+        return false;
+      }
+    }
+    return true;
   }
 }
