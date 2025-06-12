@@ -1,29 +1,82 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { CustomLink } from "../../components/CustomLink";
 import { axiosInstance } from "../../lib/axiosInstance";
 import type { Item } from "./types/itemType";
-import { FormControl, InputLabel, Select, MenuItem } from "@mui/material";
+import {
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Pagination,
+  Autocomplete,
+  TextField,
+} from "@mui/material";
 
 export function ItemPage() {
   const [items, setItems] = useState<Item[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
+
+  const [searchKeyword, setSearchKeyword] = useState("");
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+
   const [sort, setSort] = useState<"priceAsc" | "priceDesc">("priceAsc");
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+
+  /**
+   * アイテムを取得する
+   * searchKeyword, sort, pageが変更されたらアイテムを取得する
+   */
+  const fetchItems = useCallback(async () => {
+    try {
+      const response = await axiosInstance.get(
+        `/items?sort=${sort}&page=${page}&size=9&keyword=${searchKeyword}`,
+      );
+      setItems(response.data.content);
+      setTotalPages(response.data.totalPages);
+    } catch (error) {
+      console.error(error);
+    }
+  }, [searchKeyword, sort, page]);
 
   useEffect(() => {
-    const fetchItems = async () => {
-      try {
-        const response = await axiosInstance.get(`/items?sort=${sort}`);
-        setItems(response.data);
-      } catch (error) {
-        console.error(error);
-      }
-    };
     fetchItems();
-  }, [sort]);
+  }, [fetchItems]);
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    // TODO: Implement search logic
+  /**
+   * サジェストを取得する
+   *
+   * @param keyword 検索キーワード
+   */
+  const fetchSuggestions = async (keyword: string) => {
+    try {
+      const response = await axiosInstance.get(
+        `/items/autocomplete?keyword=${keyword}&limit=10`,
+      );
+      setSuggestions(response.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  /**
+   * 検索フォームのキーワード変更イベント
+   *
+   * @param keyword 新しい検索キーワード
+   */
+  const handleSearchKeywordChange = async (keyword: string) => {
+    setSearchKeyword(keyword);
+    setPage(0);
+    fetchSuggestions(keyword);
+  };
+
+  /**
+   * ページネーションのページ変更
+   *
+   * @param _ 使用しない
+   * @param value ページ番号(1~)
+   */
+  const handlePageChange = (_: React.ChangeEvent<unknown>, value: number) => {
+    setPage(value - 1); // ページ番号は0から始まるため1を引く
   };
 
   return (
@@ -32,31 +85,18 @@ export function ItemPage() {
       <div className="bg-white shadow-md rounded-lg p-6 max-w-xl mx-auto mb-8">
         <h2 className="text-lg font-semibold mb-4">商品を検索する</h2>
 
-        <form onSubmit={handleSearch} className="flex gap-2">
-          <input
-            type="text"
-            className="flex-1 border border-gray-300 rounded px-3 py-2 text-sm"
-            placeholder="商品名"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-          <button
-            type="submit"
-            className="bg-blue-600 text-white px-4 py-2 rounded text-sm hover:bg-blue-700"
-          >
-            検索
-          </button>
-          <button
-            type="reset"
-            onClick={() => setSearchTerm("")}
-            className="border border-gray-300 text-gray-700 px-4 py-2 rounded text-sm hover:bg-gray-100"
-          >
-            クリア
-          </button>
-        </form>
+        <Autocomplete
+          freeSolo
+          options={suggestions}
+          value={searchKeyword}
+          onInputChange={(_, keyword) => handleSearchKeywordChange(keyword)}
+          renderInput={(params) => (
+            <TextField {...params} placeholder="商品名" size="small" />
+          )}
+        />
       </div>
 
-      <div className="text-right mb-3 mr-2">
+      <div className="flex justify-between items-end mb-3">
         <FormControl variant="standard" sx={{ minWidth: 120 }}>
           <InputLabel id="item-sort-label">並び替え</InputLabel>
 
@@ -73,9 +113,21 @@ export function ItemPage() {
             <MenuItem value="priceDesc">価格が高い順</MenuItem>
           </Select>
         </FormControl>
+
+        <div className="text-sm text-gray-600">
+          {`全${totalPages}ページ中 ${page + 1}ページ目`}
+        </div>
       </div>
 
-      {/* Pizza Items Grid */}
+      {/* アイテムが0件の場合 */}
+      {items.length === 0 && (
+        <div className="text-center py-12 text-gray-600">
+          <p className="text-lg mb-2">検索結果が見つかりませんでした</p>
+          <p className="text-sm">検索条件を変更して、もう一度お試しください</p>
+        </div>
+      )}
+
+      {/* アイテムが1件以上の場合 */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
         {items.map((item) => (
           <div
@@ -103,12 +155,24 @@ export function ItemPage() {
                   {item.itemName}
                 </CustomLink>
               </h3>
-              <p className="text-sm text-gray-600">M: {item.itemPriceM}</p>
-              <p className="text-sm text-gray-600">L: {item.itemPriceL}</p>
+              <p className="text-sm text-gray-600">{`M: ${item.itemPriceM}円`}</p>
+              <p className="text-sm text-gray-600">{`L: ${item.itemPriceL}円`}</p>
             </div>
           </div>
         ))}
       </div>
+
+      {totalPages >= 1 && (
+        <div className="mt-8 flex justify-center">
+          <Pagination
+            color="primary"
+            size="large"
+            count={totalPages}
+            page={page + 1}
+            onChange={handlePageChange}
+          />
+        </div>
+      )}
     </div>
   );
 }
