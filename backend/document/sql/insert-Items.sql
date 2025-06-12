@@ -1,0 +1,10 @@
+INSERT INTO Items (item_name, item_price_l, item_price_m, image_path) VALUES ('商品1', 3000, 2000, '/1.jpg');
+INSERT INTO Items (item_name, item_price_l, item_price_m, image_path) VALUES ('商品2', 4000, 3000, '/2.jpg');
+INSERT INTO Items (item_name, item_price_l, item_price_m, image_path, item_description) VALUES ('商品3', 3000, 2000, '/3.jpg', 'sample');
+INSERT INTO Items (item_name, item_price_l, item_price_m, image_path, deleted) VALUES ('商品4', 3000, 2000, '/4.jpg', true);
+INSERT INTO Items (item_name, item_price_l, item_price_m, image_path, item_description, deleted) VALUES ('商品5', 3000, 2000, '/5.jpg', 'test', true);
+INSERT INTO Items (item_name, item_price_l, item_price_m, image_path, item_description) VALUES ('商品6', 2000, 1000, '/6.jpg', 'sample2');
+INSERT INTO Items (item_name, item_price_l, item_price_m, image_path, deleted) VALUES ('商品7', 5000, 4000, '/7.jpg', true);
+INSERT INTO Items (item_name, item_price_l, item_price_m, image_path, item_description, deleted) VALUES ('商品8', 3500, 2500, '/8.jpg', 'test2', true);
+INSERT INTO Items (item_name, item_price_l, item_price_m, image_path) VALUES ('商品9', 10000, 8000, '/9.jpg');
+INSERT INTO Items (item_name, item_price_l, item_price_m, image_path) VALUES ('商品10', 1000, 500, '/10.jpg');

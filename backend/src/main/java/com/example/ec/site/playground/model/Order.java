@@ -72,9 +72,9 @@ public class Order {
 
   /** 配達日時. */
   @Column(
-      name = "delivery_time",
+      name = "delivery_date_time",
       columnDefinition = "TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP + interval '1 hour'")
-  private ZonedDateTime deliveryTime = ZonedDateTime.now().plusHours(1);
+  private ZonedDateTime deliveryDateTime = ZonedDateTime.now().plusHours(1);
 
   /** 支払い方法. */
   @Column(name = "payment_method", nullable = false)
