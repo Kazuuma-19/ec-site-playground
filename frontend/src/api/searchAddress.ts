@@ -14,7 +14,6 @@ export const searchAddress = async (
       params: { zipcode },
     });
     const items = response.data?.items;
-    console.log(items[0].components);
     if (items?.length) {
       return items[0].components;
     }

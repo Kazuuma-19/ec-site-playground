@@ -120,7 +120,6 @@ export function OrderConfirmPage() {
 
   const handleSearchAddress = async () => {
     const currentZipcode = getValues("destinationZipcode");
-    console.log(currentZipcode);
     if (!currentZipcode) return;
 
     const address = await searchAddress(currentZipcode);
@@ -224,21 +223,19 @@ export function OrderConfirmPage() {
                 />
               </div>
 
-              <div>
-                <div className="flex items-center gap-2">
-                  <FormLabel>郵便番号</FormLabel>
-                  <TextField
-                    {...register("destinationZipcode", {
-                      required: "郵便番号は必須です",
-                    })}
-                    error={!!errors.destinationZipcode}
-                    helperText={errors.destinationZipcode?.message}
-                    placeholder="123-4567"
-                  />
-                  <Button variant="outlined" onClick={handleSearchAddress}>
-                    住所検索
-                  </Button>
-                </div>
+              <div className="flex items-center gap-2">
+                <FormLabel>郵便番号</FormLabel>
+                <TextField
+                  {...register("destinationZipcode", {
+                    required: "郵便番号は必須です",
+                  })}
+                  error={!!errors.destinationZipcode}
+                  helperText={errors.destinationZipcode?.message}
+                  placeholder="123-4567"
+                />
+                <Button variant="outlined" onClick={handleSearchAddress}>
+                  住所検索
+                </Button>
               </div>
 
               <div>
