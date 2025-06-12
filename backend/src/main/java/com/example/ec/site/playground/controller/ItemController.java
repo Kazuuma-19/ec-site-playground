@@ -184,9 +184,13 @@ public class ItemController {
    * @return 同じアイテムであればtrue、そうでなければfalse
    */
   private boolean isSameItemWithToppings(AddCartRequest item, AddCartRequest request) {
-    // アイテムIDとサイズが一致するか確認
+    List<Integer> toppingIdListInCart = item.getToppingIdList();
+    List<Integer> toppingIdListInRequest = request.getToppingIdList();
+
+    // アイテムIDとサイズ、トッピングの数が一致するか確認
     if (!item.getItemId().equals(request.getItemId())
-        || !item.getSize().equals(request.getSize())) {
+        || !item.getSize().equals(request.getSize())
+        || toppingIdListInCart.size() != toppingIdListInRequest.size()) {
       return false;
     }
 
