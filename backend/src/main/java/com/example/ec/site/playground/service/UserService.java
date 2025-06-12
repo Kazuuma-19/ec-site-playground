@@ -4,6 +4,7 @@ import com.example.ec.site.playground.model.User;
 import com.example.ec.site.playground.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -12,6 +13,7 @@ import org.springframework.web.server.ResponseStatusException;
 @RequiredArgsConstructor
 public class UserService {
   private final UserRepository userRepository;
+  private final PasswordEncoder passwordEncoder;
 
   /**
    * ユーザーを登録するメソッド.
@@ -24,6 +26,8 @@ public class UserService {
     if (userRepository.existsByEmail(user.getEmail())) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "このメールアドレスは既に登録されています。");
     }
+    // パスワードをハッシュ化
+    user.setPassword(passwordEncoder.encode(user.getPassword()));
     return userRepository.save(user);
   }
 
@@ -43,7 +47,7 @@ public class UserService {
                 () ->
                     new ResponseStatusException(HttpStatus.UNAUTHORIZED, "メールアドレスまたはパスワードが不正です。"));
 
-    if (!user.getPassword().equals(password)) {
+    if (!passwordEncoder.matches(password, user.getPassword())) {
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "メールアドレスまたはパスワードが不正です。");
     }
 

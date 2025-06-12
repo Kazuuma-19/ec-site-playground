@@ -9,6 +9,7 @@ import {
 import { useState } from "react";
 import type { UserRegisterType } from "../../types/userRegisterType";
 import { axiosInstance } from "../../lib/axiosInstance";
+import { useNavigate } from "@tanstack/react-router";
 
 type RegisterRequestType = {
   userName: string;
@@ -31,6 +32,8 @@ export function RegisterPage() {
     password: "",
     confirmPassword: "",
   });
+
+  const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
@@ -57,8 +60,8 @@ export function RegisterPage() {
     };
 
     try {
-      const response = await axiosInstance.post("/user/register", requestBody);
-      console.log(response);
+      await axiosInstance.post("/user/register", requestBody);
+      navigate({ to: "/login" });
     } catch (error) {
       console.error(error);
     }
