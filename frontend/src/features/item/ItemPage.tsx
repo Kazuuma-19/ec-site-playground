@@ -8,11 +8,16 @@ import {
   Select,
   MenuItem,
   Pagination,
+  Autocomplete,
+  TextField,
 } from "@mui/material";
 
 export function ItemPage() {
   const [items, setItems] = useState<Item[]>([]);
+
   const [searchKeyword, setSearchKeyword] = useState("");
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+
   const [sort, setSort] = useState<"priceAsc" | "priceDesc">("priceAsc");
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
@@ -38,25 +43,30 @@ export function ItemPage() {
   }, [fetchItems]);
 
   /**
-   * 検索フォームの検索ボタンクリックイベント
+   * サジェストを取得する
    *
-   * @param e イベント
+   * @param keyword 検索キーワード
    */
-  const handleSearch = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setPage(0); // 検索時にページをリセット(ページを遷移した先で検索をするとバグるため)
+  const fetchSuggestions = async (keyword: string) => {
+    try {
+      const response = await axiosInstance.get(
+        `/items/autocomplete?keyword=${keyword}&limit=10`,
+      );
+      setSuggestions(response.data);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   /**
    * 検索フォームのキーワード変更イベント
    *
-   * @param e イベント
+   * @param keyword 新しい検索キーワード
    */
-  const handleSearchKeywordChange = async (
-    e: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    setSearchKeyword(e.target.value);
+  const handleSearchKeywordChange = async (keyword: string) => {
+    setSearchKeyword(keyword);
     setPage(0);
+    fetchSuggestions(keyword);
   };
 
   /**
@@ -69,44 +79,21 @@ export function ItemPage() {
     setPage(value - 1); // ページ番号は0から始まるため1を引く
   };
 
-  /**
-   * 検索フォームのクリアボタンクリックイベント
-   */
-  const handleClear = () => {
-    setSearchKeyword("");
-    setPage(0);
-  };
-
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       {/* Search Form */}
       <div className="bg-white shadow-md rounded-lg p-6 max-w-xl mx-auto mb-8">
         <h2 className="text-lg font-semibold mb-4">商品を検索する</h2>
 
-        <form onSubmit={handleSearch} className="flex gap-2">
-          <input
-            type="text"
-            className="flex-1 border border-gray-300 rounded px-3 py-2 text-sm"
-            placeholder="商品名"
-            value={searchKeyword}
-            onChange={handleSearchKeywordChange}
-          />
-
-          <button
-            type="submit"
-            className="bg-blue-600 text-white px-4 py-2 rounded text-sm hover:bg-blue-700"
-          >
-            検索
-          </button>
-
-          <button
-            type="button"
-            onClick={handleClear}
-            className="border border-gray-300 text-gray-700 px-4 py-2 rounded text-sm hover:bg-gray-100"
-          >
-            クリア
-          </button>
-        </form>
+        <Autocomplete
+          freeSolo
+          options={suggestions}
+          value={searchKeyword}
+          onInputChange={(_, keyword) => handleSearchKeywordChange(keyword)}
+          renderInput={(params) => (
+            <TextField {...params} placeholder="商品名" size="small" />
+          )}
+        />
       </div>
 
       <div className="flex justify-between items-end mb-3">
