@@ -22,11 +22,11 @@ import { axiosInstance } from "../../lib/axiosInstance";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { DateCalendar } from "@mui/x-date-pickers/DateCalendar";
-import dayjs from "dayjs";
 import { searchAddress } from "../../api/searchAddress";
 import { orderFormSchema } from "./schema/orderFormSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { OrderForm } from "./schema/orderFormSchema";
+import { addDays, format } from "date-fns";
 
 type OrderRequest = OrderForm & {
   destinationPrefecture: string;
@@ -34,18 +34,6 @@ type OrderRequest = OrderForm & {
   deliveryDateTime: string;
   totalPrice: number;
 };
-
-const deliveryTimeOptions = [
-  "10時",
-  "11時",
-  "12時",
-  "13時",
-  "14時",
-  "15時",
-  "16時",
-  "17時",
-  "18時",
-];
 
 const hourMap: Record<string, string> = {
   "10時": "10:00:00",
@@ -62,11 +50,11 @@ const hourMap: Record<string, string> = {
 export function OrderConfirmPage() {
   const { cartItems } = useCartItem();
   const { totalPrice, totalTax } = useTotalPrice(cartItems);
-  const Today = new Date();
-  const [date, setDate] = useState(Today);
+
   const [destinationPrefecture, setDestinationPrefecture] = useState("");
   const [destinationMunicipalities, setDestinationMunicipalities] =
     useState("");
+
   const navigate = useNavigate();
 
   const {
@@ -85,8 +73,8 @@ export function OrderConfirmPage() {
       destinationZipcode: "",
       destinationAddress: "",
       destinationTelephone: "",
-      deliveryDate: new Date().toISOString().split("T")[0],
-      deliveryTime: "10時",
+      deliveryDate: format(new Date(), "yyyy-MM-dd"),
+      deliveryTime: "10:00:00",
       paymentMethod: 0,
     },
   });
@@ -94,11 +82,11 @@ export function OrderConfirmPage() {
   const onSubmit = async (data: OrderForm) => {
     const orderRequest: OrderRequest = {
       ...data,
-      destinationZipcode: `${data.destinationZipcode.replace("-", "").trim()}`,
-      deliveryDateTime: `${data.deliveryDate} ${hourMap[data.deliveryTime]}`,
+      destinationZipcode: data.destinationZipcode.replace("-", "").trim(),
+      deliveryDateTime: `${data.deliveryDate} ${data.deliveryTime}`,
       totalPrice,
-      destinationPrefecture: `${destinationPrefecture}`,
-      destinationMunicipalities: `${destinationMunicipalities}`,
+      destinationPrefecture,
+      destinationMunicipalities,
     };
 
     try {
@@ -126,6 +114,11 @@ export function OrderConfirmPage() {
     } else {
       alert("住所が見つかりませんでした");
     }
+  };
+
+  const parseDate = (date: Date | null) => {
+    if (!date) return "";
+    return format(date, "yyyy-MM-dd");
   };
 
   return (
@@ -256,25 +249,14 @@ export function OrderConfirmPage() {
                   name="deliveryDate"
                   control={control}
                   render={({ field }) => (
-                    <>
-                      <DateCalendar
-                        value={dayjs(field.value)}
-                        onChange={(date) => {
-                          const formatted = date
-                            ? date.format("YYYY-MM-DD")
-                            : "";
-                          field.onChange(formatted);
-                          setDate(date?.toDate() || Today);
-                        }}
-                        minDate={dayjs()}
-                        maxDate={dayjs().add(30, "day")}
-                      />
-                      {errors.deliveryDate && (
-                        <Typography color="error" fontSize={12}>
-                          {errors.deliveryDate.message}
-                        </Typography>
-                      )}
-                    </>
+                    <DateCalendar
+                      value={new Date(field.value)}
+                      onChange={(date) => {
+                        field.onChange(parseDate(date));
+                      }}
+                      minDate={new Date()}
+                      maxDate={addDays(new Date(), 30)}
+                    />
                   )}
                 />
                 <Controller
@@ -282,12 +264,12 @@ export function OrderConfirmPage() {
                   control={control}
                   render={({ field }) => (
                     <RadioGroup {...field} row>
-                      {deliveryTimeOptions.map((time) => (
+                      {Object.entries(hourMap).map(([key, value]) => (
                         <FormControlLabel
-                          key={time}
-                          value={time}
+                          key={key}
+                          value={value}
                           control={<Radio />}
-                          label={time}
+                          label={key}
                         />
                       ))}
                     </RadioGroup>
