@@ -22,19 +22,12 @@ import { axiosInstance } from "../../lib/axiosInstance";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { DateCalendar } from "@mui/x-date-pickers/DateCalendar";
-import dayjs from "dayjs";
 import { searchAddress } from "../../api/searchAddress";
-
-type OrderForm = {
-  destinationName: string;
-  destinationEmail: string;
-  destinationZipcode: string;
-  destinationAddress: string;
-  destinationTelephone: string;
-  deliveryDate: string;
-  deliveryTime: string;
-  paymentMethod: number;
-};
+import { orderFormSchema } from "./schema/orderFormSchema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import type { OrderForm } from "./schema/orderFormSchema";
+import { addDays, format } from "date-fns";
+import WarningAlert from "../../components/WarningAlert";
 
 type OrderRequest = OrderForm & {
   destinationPrefecture: string;
@@ -42,18 +35,6 @@ type OrderRequest = OrderForm & {
   deliveryDateTime: string;
   totalPrice: number;
 };
-
-const deliveryTimeOptions = [
-  "10時",
-  "11時",
-  "12時",
-  "13時",
-  "14時",
-  "15時",
-  "16時",
-  "17時",
-  "18時",
-];
 
 const hourMap: Record<string, string> = {
   "10時": "10:00:00",
@@ -70,11 +51,12 @@ const hourMap: Record<string, string> = {
 export function OrderConfirmPage() {
   const { cartItems } = useCartItem();
   const { totalPrice, totalTax } = useTotalPrice(cartItems);
-  const Today = new Date();
-  const [date, setDate] = useState(Today);
+
   const [destinationPrefecture, setDestinationPrefecture] = useState("");
   const [destinationMunicipalities, setDestinationMunicipalities] =
     useState("");
+  const [isAddressNotFound, setIsAddressNotFound] = useState(false);
+
   const navigate = useNavigate();
 
   const {
@@ -84,15 +66,17 @@ export function OrderConfirmPage() {
     formState: { errors },
     getValues,
     setValue,
+    trigger,
   } = useForm<OrderForm>({
+    resolver: zodResolver(orderFormSchema),
     defaultValues: {
       destinationName: "",
       destinationEmail: "",
       destinationZipcode: "",
       destinationAddress: "",
       destinationTelephone: "",
-      deliveryDate: new Date().toISOString().split("T")[0],
-      deliveryTime: "10時",
+      deliveryDate: format(new Date(), "yyyy-MM-dd"),
+      deliveryTime: "10:00:00",
       paymentMethod: 0,
     },
   });
@@ -100,11 +84,11 @@ export function OrderConfirmPage() {
   const onSubmit = async (data: OrderForm) => {
     const orderRequest: OrderRequest = {
       ...data,
-      destinationZipcode: `${data.destinationZipcode.replace("-", "").trim()}`,
-      deliveryDateTime: `${data.deliveryDate} ${hourMap[data.deliveryTime]}`,
+      destinationZipcode: data.destinationZipcode.replace("-", "").trim(),
+      deliveryDateTime: `${data.deliveryDate} ${data.deliveryTime}`,
       totalPrice,
-      destinationPrefecture: `${destinationPrefecture}`,
-      destinationMunicipalities: `${destinationMunicipalities}`,
+      destinationPrefecture,
+      destinationMunicipalities,
     };
 
     try {
@@ -119,17 +103,27 @@ export function OrderConfirmPage() {
   };
 
   const handleSearchAddress = async () => {
-    const currentZipcode = getValues("destinationZipcode");
-    if (!currentZipcode) return;
+    const isValid = await trigger("destinationZipcode");
+    if (!isValid) return;
 
+    const currentZipcode = getValues("destinationZipcode");
     const address = await searchAddress(currentZipcode);
+
     if (address) {
       setValue("destinationAddress", address[0] + address[1] + address[2]);
       setDestinationPrefecture(address[0]);
       setDestinationMunicipalities(address[1]);
     } else {
-      alert("住所が見つかりませんでした");
+      setIsAddressNotFound(true);
+      setTimeout(() => {
+        setIsAddressNotFound(false);
+      }, 3000);
     }
+  };
+
+  const parseDate = (date: Date | null) => {
+    if (!date) return "";
+    return format(date, "yyyy-MM-dd");
   };
 
   return (
@@ -201,9 +195,7 @@ export function OrderConfirmPage() {
                 <FormLabel>お名前</FormLabel>
                 <TextField
                   fullWidth
-                  {...register("destinationName", {
-                    required: "名前は必須です",
-                  })}
+                  {...register("destinationName")}
                   error={!!errors.destinationName}
                   helperText={errors.destinationName?.message}
                   placeholder="ラクス太郎"
@@ -214,9 +206,7 @@ export function OrderConfirmPage() {
                 <FormLabel>メールアドレス</FormLabel>
                 <TextField
                   fullWidth
-                  {...register("destinationEmail", {
-                    required: "メールアドレスは必須です",
-                  })}
+                  {...register("destinationEmail")}
                   error={!!errors.destinationEmail}
                   helperText={errors.destinationEmail?.message}
                   placeholder="sample@rakus.com"
@@ -226,9 +216,7 @@ export function OrderConfirmPage() {
               <div className="flex items-center gap-2">
                 <FormLabel>郵便番号</FormLabel>
                 <TextField
-                  {...register("destinationZipcode", {
-                    required: "郵便番号は必須です",
-                  })}
+                  {...register("destinationZipcode")}
                   error={!!errors.destinationZipcode}
                   helperText={errors.destinationZipcode?.message}
                   placeholder="123-4567"
@@ -242,9 +230,7 @@ export function OrderConfirmPage() {
                 <FormLabel>住所</FormLabel>
                 <TextField
                   fullWidth
-                  {...register("destinationAddress", {
-                    required: "住所は必須です",
-                  })}
+                  {...register("destinationAddress")}
                   error={!!errors.destinationAddress}
                   helperText={errors.destinationAddress?.message}
                   placeholder="東京都渋谷区千駄ヶ谷5-27-5 リンクスクエア新宿7階"
@@ -255,9 +241,7 @@ export function OrderConfirmPage() {
                 <FormLabel>電話番号</FormLabel>
                 <TextField
                   fullWidth
-                  {...register("destinationTelephone", {
-                    required: "電話番号は必須です",
-                  })}
+                  {...register("destinationTelephone")}
                   error={!!errors.destinationTelephone}
                   helperText={errors.destinationTelephone?.message}
                   placeholder="050-8880-3200"
@@ -270,25 +254,14 @@ export function OrderConfirmPage() {
                   name="deliveryDate"
                   control={control}
                   render={({ field }) => (
-                    <>
-                      <DateCalendar
-                        value={dayjs(field.value)}
-                        onChange={(date) => {
-                          const formatted = date
-                            ? date.format("YYYY-MM-DD")
-                            : "";
-                          field.onChange(formatted);
-                          setDate(date?.toDate() || Today);
-                        }}
-                        minDate={dayjs()}
-                        maxDate={dayjs().add(30, "day")}
-                      />
-                      {errors.deliveryDate && (
-                        <Typography color="error" fontSize={12}>
-                          {errors.deliveryDate.message}
-                        </Typography>
-                      )}
-                    </>
+                    <DateCalendar
+                      value={new Date(field.value)}
+                      onChange={(date) => {
+                        field.onChange(parseDate(date));
+                      }}
+                      minDate={new Date()}
+                      maxDate={addDays(new Date(), 30)}
+                    />
                   )}
                 />
                 <Controller
@@ -296,12 +269,12 @@ export function OrderConfirmPage() {
                   control={control}
                   render={({ field }) => (
                     <RadioGroup {...field} row>
-                      {deliveryTimeOptions.map((time) => (
+                      {Object.entries(hourMap).map(([key, value]) => (
                         <FormControlLabel
-                          key={time}
-                          value={time}
+                          key={key}
+                          value={value}
                           control={<Radio />}
-                          label={time}
+                          label={key}
                         />
                       ))}
                     </RadioGroup>
@@ -346,6 +319,10 @@ export function OrderConfirmPage() {
           </Button>
         </div>
       </form>
+
+      {isAddressNotFound && (
+        <WarningAlert message="住所が見つかりませんでした" />
+      )}
     </Container>
   );
 }
