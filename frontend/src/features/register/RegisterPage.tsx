@@ -13,18 +13,11 @@ import { axiosInstance } from "../../lib/axiosInstance";
 import { searchAddress } from "../../api/searchAddress"; // 住所検索APIを呼び出す関数
 import { useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { registerFormSchema } from "./schema/registerFormSchema";
+import type { RegisterForm } from "./schema/registerFormSchema";
 
-type RegisterForm = {
-  name: string;
-  email: string;
-  zipcode: string;
-  address: string;
-  tel: string;
-  password: string;
-  confirmPassword: string;
-};
-
-type RegisterRequest = RegisterForm & {
+type RegisterRequest = Omit<RegisterForm, "confirmPassword"> & {
   prefecture: string;
   municipalities: string;
 };
@@ -35,8 +28,11 @@ export function RegisterPage() {
     handleSubmit,
     setValue,
     getValues,
+    trigger,
     formState: { errors },
-  } = useForm<RegisterForm>();
+  } = useForm<RegisterForm>({
+    resolver: zodResolver(registerFormSchema),
+  });
 
   const navigate = useNavigate();
 
@@ -44,20 +40,11 @@ export function RegisterPage() {
   const [municipalities, setMunicipalities] = useState("");
 
   const onSubmit = async (data: RegisterForm) => {
-    if (data.password !== data.confirmPassword) {
-      alert("パスワードが一致しません。");
-      return;
-    }
-
-    const requestBody = {
-      userName: data.name,
-      email: data.email,
-      password: data.password,
-      zipCode: data.zipcode.replace("-", "").trim(),
+    const requestBody: RegisterRequest = {
+      ...data,
+      zipCode: data.zipCode.replace("-", "").trim(),
       prefecture: prefecture, // TODO: 住所APIから分割取得する場合
       municipalities: municipalities,
-      address: data.address,
-      telephone: data.tel,
     };
 
     try {
@@ -70,8 +57,10 @@ export function RegisterPage() {
   };
 
   const handleSearchAddress = async () => {
-    const zipcode = getValues("zipcode");
-    if (!zipcode) return;
+    const isValid = await trigger("zipCode");
+    if (!isValid) return;
+
+    const zipcode = getValues("zipCode");
 
     const address = await searchAddress(zipcode);
     if (address) {
@@ -98,9 +87,9 @@ export function RegisterPage() {
                 <FormLabel>お名前</FormLabel>
                 <TextField
                   fullWidth
-                  {...register("name", { required: "名前は必須です" })}
-                  error={!!errors.name}
-                  helperText={errors.name?.message}
+                  {...register("userName")}
+                  error={!!errors.userName}
+                  helperText={errors.userName?.message}
                   placeholder="ラクス太郎"
                 />
               </div>
@@ -109,9 +98,7 @@ export function RegisterPage() {
                 <FormLabel>メールアドレス</FormLabel>
                 <TextField
                   fullWidth
-                  {...register("email", {
-                    required: "メールアドレスは必須です",
-                  })}
+                  {...register("email")}
                   error={!!errors.email}
                   helperText={errors.email?.message}
                   placeholder="sample@rakus.com"
@@ -121,9 +108,9 @@ export function RegisterPage() {
               <div className="flex items-center gap-2">
                 <FormLabel>郵便番号</FormLabel>
                 <TextField
-                  {...register("zipcode", { required: "郵便番号は必須です" })}
-                  error={!!errors.zipcode}
-                  helperText={errors.zipcode?.message}
+                  {...register("zipCode")}
+                  error={!!errors.zipCode}
+                  helperText={errors.zipCode?.message}
                   placeholder="123-4567"
                 />
                 <Button variant="outlined" onClick={handleSearchAddress}>
@@ -135,7 +122,7 @@ export function RegisterPage() {
                 <FormLabel>住所</FormLabel>
                 <TextField
                   fullWidth
-                  {...register("address", { required: "住所は必須です" })}
+                  {...register("address")}
                   error={!!errors.address}
                   helperText={errors.address?.message}
                   placeholder="東京都渋谷区千駄ヶ谷5-27-5"
@@ -146,9 +133,9 @@ export function RegisterPage() {
                 <FormLabel>電話番号</FormLabel>
                 <TextField
                   fullWidth
-                  {...register("tel", { required: "電話番号は必須です" })}
-                  error={!!errors.tel}
-                  helperText={errors.tel?.message}
+                  {...register("telephone")}
+                  error={!!errors.telephone}
+                  helperText={errors.telephone?.message}
                   placeholder="050-8880-3200"
                 />
               </div>
@@ -158,9 +145,7 @@ export function RegisterPage() {
                 <TextField
                   fullWidth
                   type="password"
-                  {...register("password", {
-                    required: "パスワードは必須です",
-                  })}
+                  {...register("password")}
                   error={!!errors.password}
                   helperText={errors.password?.message}
                 />
@@ -171,9 +156,7 @@ export function RegisterPage() {
                 <TextField
                   fullWidth
                   type="password"
-                  {...register("confirmPassword", {
-                    required: "確認用パスワードは必須です",
-                  })}
+                  {...register("confirmPassword")}
                   error={!!errors.confirmPassword}
                   helperText={errors.confirmPassword?.message}
                 />
