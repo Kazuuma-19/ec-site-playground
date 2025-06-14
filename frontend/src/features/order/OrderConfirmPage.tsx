@@ -27,6 +27,7 @@ import { orderFormSchema } from "./schema/orderFormSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { OrderForm } from "./schema/orderFormSchema";
 import { addDays, format } from "date-fns";
+import WarningAlert from "../../components/WarningAlert";
 
 type OrderRequest = OrderForm & {
   destinationPrefecture: string;
@@ -54,6 +55,7 @@ export function OrderConfirmPage() {
   const [destinationPrefecture, setDestinationPrefecture] = useState("");
   const [destinationMunicipalities, setDestinationMunicipalities] =
     useState("");
+  const [isAddressNotFound, setIsAddressNotFound] = useState(false);
 
   const navigate = useNavigate();
 
@@ -112,7 +114,10 @@ export function OrderConfirmPage() {
       setDestinationPrefecture(address[0]);
       setDestinationMunicipalities(address[1]);
     } else {
-      alert("住所が見つかりませんでした");
+      setIsAddressNotFound(true);
+      setTimeout(() => {
+        setIsAddressNotFound(false);
+      }, 3000);
     }
   };
 
@@ -314,6 +319,10 @@ export function OrderConfirmPage() {
           </Button>
         </div>
       </form>
+
+      {isAddressNotFound && (
+        <WarningAlert message="住所が見つかりませんでした" />
+      )}
     </Container>
   );
 }
