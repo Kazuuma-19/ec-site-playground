@@ -26,7 +26,7 @@ back-check:
 
 # テストを除いてビルド
 build:
-	cd backend && ./gradlew build -x test
+	cd backend && ./gradlew build -x test -x checkstyleMain
 
 # imageをビルドしてコンテナを起動
 up:

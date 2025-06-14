@@ -3,6 +3,7 @@ package com.example.ec.site.playground.controller;
 import com.example.ec.site.playground.dto.request.OrderRequest;
 import com.example.ec.site.playground.model.Order;
 import com.example.ec.site.playground.model.User;
+import com.example.ec.site.playground.service.MailService;
 import com.example.ec.site.playground.service.OrderService;
 import com.example.ec.site.playground.service.UserService;
 import jakarta.servlet.http.HttpSession;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class OrderController {
   private final OrderService orderService;
   private final UserService userService;
+  private final MailService mailService;
 
   private static final String SESSION_USER_ID = "SESSION_USER_ID";
 
