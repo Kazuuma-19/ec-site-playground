@@ -76,6 +76,7 @@ export function OrderConfirmPage() {
     formState: { errors },
     getValues,
     setValue,
+    trigger,
   } = useForm<OrderForm>({
     resolver: zodResolver(orderFormSchema),
     defaultValues: {
@@ -112,10 +113,12 @@ export function OrderConfirmPage() {
   };
 
   const handleSearchAddress = async () => {
-    const currentZipcode = getValues("destinationZipcode");
-    if (!currentZipcode) return;
+    const isValid = await trigger("destinationZipcode");
+    if (!isValid) return;
 
+    const currentZipcode = getValues("destinationZipcode");
     const address = await searchAddress(currentZipcode);
+
     if (address) {
       setValue("destinationAddress", address[0] + address[1] + address[2]);
       setDestinationPrefecture(address[0]);
@@ -194,9 +197,7 @@ export function OrderConfirmPage() {
                 <FormLabel>お名前</FormLabel>
                 <TextField
                   fullWidth
-                  {...register("destinationName", {
-                    required: "名前は必須です",
-                  })}
+                  {...register("destinationName")}
                   error={!!errors.destinationName}
                   helperText={errors.destinationName?.message}
                   placeholder="ラクス太郎"
@@ -207,9 +208,7 @@ export function OrderConfirmPage() {
                 <FormLabel>メールアドレス</FormLabel>
                 <TextField
                   fullWidth
-                  {...register("destinationEmail", {
-                    required: "メールアドレスは必須です",
-                  })}
+                  {...register("destinationEmail")}
                   error={!!errors.destinationEmail}
                   helperText={errors.destinationEmail?.message}
                   placeholder="sample@rakus.com"
@@ -219,9 +218,7 @@ export function OrderConfirmPage() {
               <div className="flex items-center gap-2">
                 <FormLabel>郵便番号</FormLabel>
                 <TextField
-                  {...register("destinationZipcode", {
-                    required: "郵便番号は必須です",
-                  })}
+                  {...register("destinationZipcode")}
                   error={!!errors.destinationZipcode}
                   helperText={errors.destinationZipcode?.message}
                   placeholder="123-4567"
@@ -235,9 +232,7 @@ export function OrderConfirmPage() {
                 <FormLabel>住所</FormLabel>
                 <TextField
                   fullWidth
-                  {...register("destinationAddress", {
-                    required: "住所は必須です",
-                  })}
+                  {...register("destinationAddress")}
                   error={!!errors.destinationAddress}
                   helperText={errors.destinationAddress?.message}
                   placeholder="東京都渋谷区千駄ヶ谷5-27-5 リンクスクエア新宿7階"
@@ -248,9 +243,7 @@ export function OrderConfirmPage() {
                 <FormLabel>電話番号</FormLabel>
                 <TextField
                   fullWidth
-                  {...register("destinationTelephone", {
-                    required: "電話番号は必須です",
-                  })}
+                  {...register("destinationTelephone")}
                   error={!!errors.destinationTelephone}
                   helperText={errors.destinationTelephone?.message}
                   placeholder="050-8880-3200"
