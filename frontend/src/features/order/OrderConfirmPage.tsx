@@ -19,11 +19,14 @@ import { Container } from "@mui/material";
 import { useTotalPrice } from "../cart/hooks/useTotalPrice";
 import { useCartItem } from "../cart/hooks/useCartItem";
 import { axiosInstance } from "../../lib/axiosInstance";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { DateCalendar } from "@mui/x-date-pickers/DateCalendar";
 import dayjs from "dayjs";
 import { searchAddress } from "../../api/searchAddress";
+import { Elements } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
+import PaymentForm from "../../components/PaymentForm";
 
 type OrderForm = {
   destinationName: string;
@@ -67,6 +70,8 @@ const hourMap: Record<string, string> = {
   "18時": "18:00:00",
 };
 
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
+
 export function OrderConfirmPage() {
   const { cartItems } = useCartItem();
   const { totalPrice, totalTax } = useTotalPrice(cartItems);
@@ -75,7 +80,17 @@ export function OrderConfirmPage() {
   const [destinationPrefecture, setDestinationPrefecture] = useState("");
   const [destinationMunicipalities, setDestinationMunicipalities] =
     useState("");
+  const [clientSecret, setClientSecret] = useState<string>();
+
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchClientSecret = async () => {
+      const response = await axiosInstance.post("/payments/verify-card");
+      setClientSecret(response.data.clientSecret);
+    };
+    fetchClientSecret();
+  }, []);
 
   const {
     register,
@@ -84,6 +99,7 @@ export function OrderConfirmPage() {
     formState: { errors },
     getValues,
     setValue,
+    watch,
   } = useForm<OrderForm>({
     defaultValues: {
       destinationName: "",
@@ -313,17 +329,24 @@ export function OrderConfirmPage() {
         </Card>
 
         {/* お支払い方法 */}
-        <Card className="mb-8 max-w-2xl mx-auto">
+        <Card
+          className="mb-8 max-w-2xl mx-auto p-4"
+          sx={{ borderRadius: "16px" }}
+        >
           <CardContent>
             <Typography variant="h6" align="center" gutterBottom>
               お支払い方法
             </Typography>
-
             <Controller
               name="paymentMethod"
               control={control}
               render={({ field }) => (
-                <RadioGroup {...field} row>
+                <RadioGroup
+                  {...field}
+                  row
+                  // RHFのデフォルトではvalueがstringになるため、Numberに変換する
+                  onChange={(e) => field.onChange(Number(e.target.value))}
+                >
                   <FormControlLabel
                     value={0}
                     control={<Radio />}
@@ -337,6 +360,12 @@ export function OrderConfirmPage() {
                 </RadioGroup>
               )}
             />
+
+            {watch("paymentMethod") === 1 && clientSecret && (
+              <Elements stripe={stripePromise} options={{ clientSecret }}>
+                <PaymentForm />
+              </Elements>
+            )}
           </CardContent>
         </Card>
 
